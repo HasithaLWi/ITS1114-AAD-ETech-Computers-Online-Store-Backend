@@ -1,34 +1,27 @@
 package lk.ijse.etechbackend.dto;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lk.ijse.etechbackend.enumiration.Status;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lk.ijse.etechbackend.enumiration.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
-    private long userId;
-    private String name;
+    private Long id;
     private String username;
-    private String emailAddress;
-    private String password;
-    @Enumerated(EnumType.STRING)
-    private UserRole userRoles;
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    public UserDTO(long userId, String username, String password, UserRole userRoles) {
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.userRoles = userRoles;
-    }
+    private String name;
+    private String email;
+    private UserRole role;
+    private String assignedBranch;
+    private Boolean canManage;
+    private LocalDateTime createdAt;
 }

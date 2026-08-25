@@ -1,6 +1,5 @@
 package lk.ijse.etechbackend.security;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,20 +23,23 @@ public class JwtUtil {
     private String secretKey;
 
     @Value("${jwt.expiration}")
-    private Long expiration; // Changed from String to Long
+    private Long expiration;
 
     public String generateToken(UserDTO user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", user.getUserId());
-        claims.put("role", user.getUserRoles());
+        claims.put("userId", user.getId());
         claims.put("username", user.getUsername());
+        claims.put("name", user.getName());
+        claims.put("email", user.getEmail());
+        claims.put("role", user.getRole() != null ? user.getRole().name() : null);
+        claims.put("assignedBranch", user.getAssignedBranch());
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // Now works with Long
-                .signWith(getSignKey(), SignatureAlgorithm.HS256) // Use HS256, not HS512 with secretKey
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -53,7 +56,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
                 .build()
@@ -61,7 +64,7 @@ public class JwtUtil {
                 .getBody();
     }
 
-    private java.security.Key getSignKey() {
+    private Key getSignKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }

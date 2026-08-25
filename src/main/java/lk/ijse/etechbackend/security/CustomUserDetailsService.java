@@ -1,17 +1,16 @@
 package lk.ijse.etechbackend.security;
 
-
-import lk.ijse.etechbackend.exception.CustomException;
+import lk.ijse.etechbackend.entity.User;
+import lk.ijse.etechbackend.exception.ResourceNotFoundException;
 import lk.ijse.etechbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +20,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<lk.ijse.etechbackend.entity.User> optionalUser = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
-        if(optionalUser.isEmpty())
-            throw new CustomException(HttpStatus.NOT_FOUND.value(), "User not found with username: " + username);
-
-
-        return User.builder()
-                .username(optionalUser.get().getUsername())
-                .password(optionalUser.get().getPassword())
-                .roles(String.valueOf(optionalUser.get().getUserRoles()))
-                .build();
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPasswordHash(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
     }
-
 }
