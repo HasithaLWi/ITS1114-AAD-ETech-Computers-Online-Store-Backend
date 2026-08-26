@@ -25,9 +25,13 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        log.info("--- DATA INITIALIZER IS RUNNING! ---"); // Add this line
         seedBranches();
         seedUsers();
+        log.info("--- DATA INITIALIZER FINISHED! ---");
     }
+
+
 
     private void seedBranches() {
         if (branchRepository.count() == 0) {
