@@ -50,7 +50,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
     public ResponseEntity<UserDTO> createUser(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody UserCreateRequestDTO request) {
+            @Valid @RequestBody UserDTO request) {
         log.info("REST: Creating user {} with role {} by {}",
                 request.getUsername(), request.getRole(), userDetails.getUsername());
         UserDTO createdUser = userService.createUser(userDetails.getUsername(), request);
@@ -62,7 +62,7 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id,
-            @Valid @RequestBody UserUpdateRequestDTO request) {
+            @Valid @RequestBody UserDTO request) {
         log.info("REST: Updating user ID {} by {}", id, userDetails.getUsername());
         UserDTO updatedUser = userService.updateUser(userDetails.getUsername(), id, request);
         return ResponseEntity.ok(updatedUser);
@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<UserDTO> changeUserRole(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long id,
-            @Valid @RequestBody RoleChangeRequestDTO request) {
+            @Valid @RequestBody UserDTO request) {
         log.info("REST: Changing role of user ID {} to {} by {}", id, request.getRole(), userDetails.getUsername());
         UserDTO updatedUser = userService.changeUserRole(userDetails.getUsername(), id, request);
         return ResponseEntity.ok(updatedUser);
@@ -92,7 +92,7 @@ public class UserController {
     @PutMapping("/me/profile")
     public ResponseEntity<UserDTO> updateProfile(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody ProfileUpdateRequestDTO request) {
+            @Valid @RequestBody UserDTO request) {
         log.info("REST: Self-profile update requested by {}", userDetails.getUsername());
         UserDTO updatedProfile = userService.updateProfile(userDetails.getUsername(), request);
         return ResponseEntity.ok(updatedProfile);
@@ -101,7 +101,7 @@ public class UserController {
     @PutMapping("/me/password")
     public ResponseEntity<ApiResponse> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody PasswordChangeRequestDTO request) {
+            @Valid @RequestBody UserDTO request) {
         log.info("REST: Self-password change requested by {}", userDetails.getUsername());
         userService.changePassword(userDetails.getUsername(), request);
         return ResponseEntity.ok(ApiResponse.success("Password changed"));

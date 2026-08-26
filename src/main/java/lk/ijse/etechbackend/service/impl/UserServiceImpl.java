@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO createUser(String currentUsername, UserCreateRequestDTO request) {
+    public UserDTO createUser(String currentUsername, UserDTO request) {
         User currentUser = getCurrentUserEntity(currentUsername);
 
         // RBAC validation
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO updateUser(String currentUsername, Long id, UserUpdateRequestDTO request) {
+    public UserDTO updateUser(String currentUsername, Long id, UserDTO request) {
         User currentUser = getCurrentUserEntity(currentUsername);
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -187,7 +187,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO changeUserRole(String currentUsername, Long id, RoleChangeRequestDTO request) {
+    public UserDTO changeUserRole(String currentUsername, Long id, UserDTO request) {
         User currentUser = getCurrentUserEntity(currentUsername);
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -245,7 +245,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDTO updateProfile(String currentUsername, ProfileUpdateRequestDTO request) {
+    public UserDTO updateProfile(String currentUsername, UserDTO request) {
         User user = getCurrentUserEntity(currentUsername);
 
         if (!user.getUsername().equalsIgnoreCase(request.getUsername()) &&
@@ -270,7 +270,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void changePassword(String currentUsername, PasswordChangeRequestDTO request) {
+    public void changePassword(String currentUsername, UserDTO request) {
         User user = getCurrentUserEntity(currentUsername);
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {

@@ -11,15 +11,15 @@ public interface UserService {
 
     UserDTO getUserById(String currentUsername, Long id);
 
-    UserDTO createUser(String currentUsername, UserCreateRequestDTO request);
+    UserDTO createUser(String currentUsername, UserDTO request);
 
-    UserDTO updateUser(String currentUsername, Long id, UserUpdateRequestDTO request);
+    UserDTO updateUser(String currentUsername, Long id, UserDTO request);
 
-    UserDTO changeUserRole(String currentUsername, Long id, RoleChangeRequestDTO request);
+    UserDTO changeUserRole(String currentUsername, Long id, UserDTO request);
 
     void deleteUser(String currentUsername, Long id);
 
-    UserDTO updateProfile(String currentUsername, ProfileUpdateRequestDTO request);
+    UserDTO updateProfile(String currentUsername, UserDTO request);
 
-    void changePassword(String currentUsername, PasswordChangeRequestDTO request);
+    void changePassword(String currentUsername, UserDTO request);
 }

@@ -1,8 +1,7 @@
 package lk.ijse.etechbackend.service.impl;
 
-import lk.ijse.etechbackend.dto.AuthRequestDTO;
+import lk.ijse.etechbackend.dto.AuthDTO;
 import lk.ijse.etechbackend.dto.AuthResponseDTO;
-import lk.ijse.etechbackend.dto.RegisterRequestDTO;
 import lk.ijse.etechbackend.dto.UserDTO;
 import lk.ijse.etechbackend.entity.User;
 import lk.ijse.etechbackend.enumiration.UserRole;
@@ -28,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
-    public AuthResponseDTO login(AuthRequestDTO request) {
+    public AuthResponseDTO login(AuthDTO request) {
         log.info("Login attempt for username: {}", request.getUsername());
 
         User user = userRepository.findByUsername(request.getUsername())
@@ -51,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthResponseDTO register(RegisterRequestDTO request) {
+    public AuthResponseDTO register(UserDTO request) {
         log.info("Registering customer account with username: {}", request.getUsername());
 
         if (userRepository.existsByUsername(request.getUsername())) {

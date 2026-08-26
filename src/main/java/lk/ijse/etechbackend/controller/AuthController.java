@@ -1,9 +1,8 @@
 package lk.ijse.etechbackend.controller;
 
 import jakarta.validation.Valid;
-import lk.ijse.etechbackend.dto.AuthRequestDTO;
+import lk.ijse.etechbackend.dto.AuthDTO;
 import lk.ijse.etechbackend.dto.AuthResponseDTO;
-import lk.ijse.etechbackend.dto.RegisterRequestDTO;
 import lk.ijse.etechbackend.dto.UserDTO;
 import lk.ijse.etechbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +22,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody AuthDTO request) {
         log.info("REST: Login request for user: {}", request.getUsername());
         AuthResponseDTO response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<AuthResponseDTO> register(@Valid @RequestBody UserDTO request) {
         log.info("REST: Register request for user: {}", request.getUsername());
         AuthResponseDTO response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
