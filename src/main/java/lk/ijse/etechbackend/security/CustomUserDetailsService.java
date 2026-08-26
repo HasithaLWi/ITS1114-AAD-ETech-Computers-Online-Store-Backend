@@ -1,7 +1,6 @@
 package lk.ijse.etechbackend.security;
 
 import lk.ijse.etechbackend.entity.User;
-import lk.ijse.etechbackend.exception.ResourceNotFoundException;
 import lk.ijse.etechbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
