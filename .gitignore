@@ -1,33 +1,117 @@
+# =========================================================================
+# ETech Computers Backend — Git Ignore Rules
+# =========================================================================
+
+# Documentation & Scratch Plans
 HELP.md
+implementation_plan.md
+
+# -------------------------------------------------------------------------
+# Build & Compiled Output (Maven / Gradle / Java)
+# -------------------------------------------------------------------------
 target/
-.mvn/wrapper/maven-wrapper.jar
+build/
+out/
+bin/
+dist/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Ensure test/main resources are not accidentally ignored if named target/build
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### STS ###
-.apt_generated
+# Maven Wrapper & Timings
+.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+.mvn/wrapper/.maven/
+
+# -------------------------------------------------------------------------
+# Logging & Runtime Artifacts
+# -------------------------------------------------------------------------
+*.log
+logs/
+*.log.*
+hs_err_pid*
+replay_pid*
+
+# -------------------------------------------------------------------------
+# Environment, Credentials & Local Secrets
+# -------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.pfx
+*.p12
+
+# -------------------------------------------------------------------------
+# IntelliJ IDEA
+# -------------------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+*.ipr
+*.idea
+cmake-build-*/
+
+# -------------------------------------------------------------------------
+# Eclipse / Spring Tool Suite (STS)
+# -------------------------------------------------------------------------
+.apt_generated/
+.apt_generated_tests/
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-.sts4-cache
+.sts4-cache/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# -------------------------------------------------------------------------
+# Visual Studio Code
+# -------------------------------------------------------------------------
+.vscode/
+*.code-workspace
+.history/
 
-### NetBeans ###
+# -------------------------------------------------------------------------
+# NetBeans
+# -------------------------------------------------------------------------
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+# -------------------------------------------------------------------------
+# Operating System Files
+# -------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
