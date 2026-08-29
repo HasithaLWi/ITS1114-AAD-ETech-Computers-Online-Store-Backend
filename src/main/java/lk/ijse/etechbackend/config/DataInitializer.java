@@ -405,38 +405,33 @@ public class DataInitializer implements CommandLineRunner {
             // 1. ROG Strix SCAR 18
             Product p1 = Product.builder()
                     .name("ROG Strix SCAR 18 (2026)")
-                    .categorySlug("laptops")
-                    .brand("ASUS")
+                    .category(categoryRepository.findBySlug("laptops").orElse(null))
+                    .brand(brandRepository.findBySlug("asus").orElse(null))
+                    .badge(badgeRepository.findBySlug("toprated").orElse(null))
                     .price(new BigDecimal("849999.00"))
                     .originalPrice(new BigDecimal("899999.00"))
                     .rating(new BigDecimal("4.9"))
                     .reviewsCount(48)
-                    .imageUrl("https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80")
                     .description("Flagship 18-inch Mini-LED gaming laptop powered by Intel Core Ultra 9 & NVIDIA RTX 4090.")
                     .fullDescription("Dominate Windows 11 gaming with the 2026 ROG Strix SCAR 18. Equipped with an Intel Core Ultra 9 185H processor, NVIDIA GeForce RTX 4090 Laptop GPU with 175W max TGP, 64GB DDR5 memory, and lightning-fast 4TB PCIe 4.0 NVMe RAID 0 storage. Features Conductonaut Extreme liquid metal and Tri-Fan Technology.")
                     .sku("ETC-LAP-001")
-                    .badge("BESTSELLER")
                     .warranty("3-Year Official Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(3)
-                    .specs(new HashMap<>(Map.of(
-                            "Processor", "Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)",
-                            "Graphics", "NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)",
-                            "Memory", "64GB DDR5 5600MHz Dual-Channel",
-                            "Storage", "4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)",
-                            "Display", "18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100"
-                    )))
-                    .features(List.of(
-                            "ROG Nebula HDR Mini-LED Display with 2000+ local dimming zones",
-                            "Conductonaut Extreme Liquid Metal on CPU & GPU",
-                            "Per-Key RGB Keyboard with Aura Sync",
-                            "Wi-Fi 7 and 2.5G LAN Gigabit Networking"
-                    ))
                     .build();
 
             p1.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
             p1.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&auto=format&fit=crop&q=80").displayOrder(1).build());
             p1.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?w=800&auto=format&fit=crop&q=80").displayOrder(2).build());
+
+            p1.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p1.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p1.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p1.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p1.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p1.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p1.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p1.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(6).build());
             if (galle != null) p1.addBranchInventory(BranchInventory.builder().branch(galle).quantity(3).build());
@@ -446,36 +441,33 @@ public class DataInitializer implements CommandLineRunner {
             // 2. MSI Titan 18 HX
             Product p2 = Product.builder()
                     .name("MSI Titan 18 HX Dragon Edition")
-                    .categorySlug("laptops")
-                    .brand("MSI")
+                    .category(categoryRepository.findBySlug("laptops").orElse(null))
+                    .brand(brandRepository.findBySlug("msi").orElse(null))
+                    .badge(badgeRepository.findBySlug("toprated").orElse(null))
                     .price(new BigDecimal("799999.00"))
                     .originalPrice(new BigDecimal("849999.00"))
                     .rating(new BigDecimal("4.8"))
                     .reviewsCount(32)
-                    .imageUrl("https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80")
                     .description("Extreme desktop replacement with mechanical Cherry MX keyboard and vapor chamber cooling.")
                     .fullDescription("MSI Titan 18 HX combines extreme desktop-grade computing with unmatched portability. Driven by Intel 14th Gen Core i9-14900HX, RTX 4090 GPU, 18-inch 4K 120Hz Mini-LED display, and world's first seamless RGB haptic touchpad.")
                     .sku("ETC-LAP-002")
-                    .badge("TOP RATED")
+
                     .warranty("2-Year International Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(2)
-                    .specs(new HashMap<>(Map.of(
-                            "Processor", "Intel Core i9-14900HX (24 Cores, up to 5.8GHz)",
-                            "Graphics", "NVIDIA GeForce RTX 4090 16GB GDDR6",
-                            "Memory", "64GB DDR5 5600MHz",
-                            "Storage", "2TB NVMe PCIe Gen5 SSD",
-                            "Display", "18.0\" 4K (3840x2400) 120Hz Mini-LED 100% DCI-P3"
-                    )))
-                    .features(List.of(
-                            "Cherry MX Low Profile Mechanical Switches",
-                            "Vapor Chamber Cooler with Dual Whirlwind Fans",
-                            "SteelSeries RGB Mystic Light Per-Key Backlighting"
-                    ))
                     .build();
 
             p2.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
             p2.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1593642634367-d91a135587b5?w=800&auto=format&fit=crop&q=80").displayOrder(1).build());
+
+            p2.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p2.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p2.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p2.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p2.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p2.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p2.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p2.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(4).build());
             if (galle != null) p2.addBranchInventory(BranchInventory.builder().branch(galle).quantity(2).build());
@@ -484,35 +476,31 @@ public class DataInitializer implements CommandLineRunner {
             // 3. ASUS TUF Gaming GeForce RTX 4070 Ti Super
             Product p3 = Product.builder()
                     .name("ASUS TUF Gaming GeForce RTX 4070 Ti SUPER 16GB")
-                    .categorySlug("components")
-                    .brand("ASUS")
+                    .category(categoryRepository.findBySlug("components").orElse(null))
+                    .brand(brandRepository.findBySlug("asus").orElse(null))
+                    .badge(badgeRepository.findBySlug("hotdeal").orElse(null))
                     .price(new BigDecimal("325000.00"))
                     .originalPrice(new BigDecimal("345000.00"))
                     .rating(new BigDecimal("4.9"))
                     .reviewsCount(85)
-                    .imageUrl("https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80")
                     .description("Military-grade durability, dual ball fan bearings, and robust heatsink for 4K ray tracing.")
                     .fullDescription("Built with auto-extreme automated manufacturing, TUF capacitors rated for 20,000 hours at 105C, and axial-tech fans scaled up for 21% more airflow.")
                     .sku("ETC-GPU-001")
-                    .badge("HOT DEAL")
                     .warranty("3-Year Replacement Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(5)
-                    .specs(new HashMap<>(Map.of(
-                            "Architecture", "Ada Lovelace (4nm TSMC)",
-                            "CUDA Cores", "8448 Cores",
-                            "VRAM", "16GB GDDR6X (256-bit)",
-                            "Boost Clock", "2640 MHz (OC Mode)",
-                            "Power Connectors", "1x 16-pin 12VHPWR"
-                    )))
-                    .features(List.of(
-                            "Axial-tech Fans with Dual Ball Bearings",
-                            "Vented Exoskeleton Aluminum Backplate",
-                            "Dual BIOS switch for Quiet / Performance profiles"
-                    ))
                     .build();
 
             p3.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p3.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p3.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p3.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p3.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+
+
+            p3.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p3.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p3.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(12).build());
             if (galle != null) p3.addBranchInventory(BranchInventory.builder().branch(galle).quantity(6).build());
@@ -522,35 +510,31 @@ public class DataInitializer implements CommandLineRunner {
             // 4. Corsair Dominator Titanium DDR5
             Product p4 = Product.builder()
                     .name("Corsair Dominator Titanium DDR5 64GB (2x32GB) 6600MHz")
-                    .categorySlug("components")
-                    .brand("Corsair")
+                    .category(categoryRepository.findBySlug("components").orElse(null))
+                    .brand(brandRepository.findBySlug("corsair").orElse(null))
+                    .badge(badgeRepository.findBySlug("new").orElse(null))
                     .price(new BigDecimal("115000.00"))
                     .originalPrice(new BigDecimal("125000.00"))
                     .rating(new BigDecimal("5.0"))
                     .reviewsCount(21)
-                    .imageUrl("https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80")
                     .description("Premium forged aluminum styling, patented DHX cooling, and 11 vibrant CAPELLIX RGB LEDs.")
                     .fullDescription("Corsair Dominator Titanium combines clean forged aluminum styling with precision memory performance and customizable top bar architecture.")
                     .sku("ETC-RAM-001")
-                    .badge("NEW ARRIVAL")
                     .warranty("Lifetime Limited Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(4)
-                    .specs(new HashMap<>(Map.of(
-                            "Density", "64GB (2x32GB Kit)",
-                            "Speed", "DDR5 6600 MT/s",
-                            "Tested Latency", "32-39-39-76",
-                            "Voltage", "1.40V",
-                            "Profiles", "Intel XMP 3.0 & AMD EXPO"
-                    )))
-                    .features(List.of(
-                            "Patented DHX PCB Cooling Technology",
-                            "11 Individually Addressable CAPELLIX RGB LEDs",
-                            "Modular Top Bar Accessory Customization"
-                    ))
                     .build();
 
             p4.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p4.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p4.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p4.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p4.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p4.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p4.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p4.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p4.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(15).build());
             if (galle != null) p4.addBranchInventory(BranchInventory.builder().branch(galle).quantity(8).build());
@@ -560,35 +544,31 @@ public class DataInitializer implements CommandLineRunner {
             // 5. Logitech G PRO X SUPERLIGHT 2
             Product p5 = Product.builder()
                     .name("Logitech G PRO X SUPERLIGHT 2 Wireless Gaming Mouse")
-                    .categorySlug("peripherals")
-                    .brand("Logitech")
+                    .category(categoryRepository.findBySlug("peripherals").orElse(null))
+                    .brand(brandRepository.findBySlug("logitech").orElse(null))
+                    .badge(badgeRepository.findBySlug("bestseller").orElse(null))
                     .price(new BigDecimal("49500.00"))
                     .originalPrice(new BigDecimal("55000.00"))
                     .rating(new BigDecimal("4.9"))
                     .reviewsCount(142)
-                    .imageUrl("https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80")
                     .description("Ultra-lightweight 60g wireless esports mouse with LIGHTFORCE hybrid optical-mechanical switches.")
                     .fullDescription("Engineered with the world's leading esports professionals. Features the HERO 2 sensor with sub-micron tracking up to 32,000 DPI and true 4,000Hz wireless polling rate via LIGHTSPEED.")
                     .sku("ETC-MOU-001")
-                    .badge("BESTSELLER")
                     .warranty("2-Year Official Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(10)
-                    .specs(new HashMap<>(Map.of(
-                            "Sensor", "HERO 2 (100 - 32,000 DPI)",
-                            "Switches", "LIGHTFORCE Hybrid Optical-Mechanical",
-                            "Weight", "60 grams",
-                            "Battery Life", "Up to 95 hours continuous motion",
-                            "Connectivity", "LIGHTSPEED Wireless / USB-C"
-                    )))
-                    .features(List.of(
-                            "Zero-Additive PTFE Glides for Ultra Smooth Glide",
-                            "POWERPLAY Wireless Charging Compatible",
-                            "4K Hz Wireless Polling Rate Capability"
-                    ))
                     .build();
 
             p5.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p5.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p5.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p5.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p5.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p5.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p5.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p5.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p5.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(25).build());
             if (galle != null) p5.addBranchInventory(BranchInventory.builder().branch(galle).quantity(14).build());
@@ -598,35 +578,31 @@ public class DataInitializer implements CommandLineRunner {
             // 6. Razer Huntsman V3 Pro
             Product p6 = Product.builder()
                     .name("Razer Huntsman V3 Pro Analog Gaming Keyboard")
-                    .categorySlug("peripherals")
-                    .brand("Razer")
+                    .category(categoryRepository.findBySlug("peripherals").orElse(null))
+                    .brand(brandRepository.findBySlug("razer").orElse(null))
+                    .badge(badgeRepository.findBySlug("toprated").orElse(null))
                     .price(new BigDecimal("78000.00"))
                     .originalPrice(new BigDecimal("85000.00"))
                     .rating(new BigDecimal("4.8"))
                     .reviewsCount(59)
-                    .imageUrl("https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80")
                     .description("Gen-2 Analog Optical switches with Rapid Trigger and adjustable actuation from 0.1 to 4.0 mm.")
                     .fullDescription("Maximize responsiveness for competitive FPS gaming. Rapid Trigger mode allows instant keystroke reset without physical rebound for ultra-fast counter-strafing.")
                     .sku("ETC-KEY-001")
-                    .badge("TOP RATED")
                     .warranty("2-Year Official Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(5)
-                    .specs(new HashMap<>(Map.of(
-                            "Switch Type", "Razer Gen-2 Analog Optical Switches",
-                            "Actuation Range", "0.1mm - 4.0mm (Customizable per key)",
-                            "Keycaps", "Textured Double-shot PBT",
-                            "Chassis", "Brushed 5052 Aluminum Top Plate",
-                            "Wrist Rest", "Magnetic Leatherette Ergonomic Rest"
-                    )))
-                    .features(List.of(
-                            "Rapid Trigger Mode for Instant Counter-Strafing",
-                            "Multi-function Digital Dial & 3 Dedicated Control Buttons",
-                            "On-board storage for up to 6 custom profiles"
-                    ))
                     .build();
 
             p6.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p6.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p6.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p6.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p6.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p6.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p6.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p6.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p6.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(18).build());
             if (galle != null) p6.addBranchInventory(BranchInventory.builder().branch(galle).quantity(9).build());
@@ -636,35 +612,34 @@ public class DataInitializer implements CommandLineRunner {
             // 7. ASUS ROG Swift OLED PG32UCDM
             Product p7 = Product.builder()
                     .name("ASUS ROG Swift OLED PG32UCDM 32\" 4K 240Hz")
-                    .categorySlug("monitors")
-                    .brand("ASUS")
+                    .category(categoryRepository.findBySlug("monitors").orElse(null))
+                    .brand(brandRepository.findBySlug("asus").orElse(null))
+                    .badge(badgeRepository.findBySlug("hotdeal").orElse(null))
                     .price(new BigDecimal("420000.00"))
                     .originalPrice(new BigDecimal("450000.00"))
                     .rating(new BigDecimal("5.0"))
                     .reviewsCount(18)
-                    .imageUrl("https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80")
                     .description("32-inch 4K QD-OLED gaming panel with 240Hz refresh rate and 0.03ms response time.")
                     .fullDescription("Featuring 3rd Gen QD-OLED technology, custom graphene heatsink, DisplayPort 1.4 (DSC), HDMI 2.1, and 90W USB-C Power Delivery.")
                     .sku("ETC-MON-001")
-                    .badge("HOT DEAL")
                     .warranty("3-Year OLED Burn-in Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(3)
-                    .specs(new HashMap<>(Map.of(
-                            "Panel Size", "31.5-inch 16:9 QD-OLED",
-                            "Resolution", "4K UHD (3840 x 2160)",
-                            "Refresh Rate", "240Hz",
-                            "Response Time", "0.03ms (GTG)",
-                            "HDR Support", "HDR10 / Dolby Vision (Peak 1000 nits)"
-                    )))
-                    .features(List.of(
-                            "Custom Graphene Film Heatsink with Zero Fan Noise",
-                            "Uniform Brightness Function for Eye Comfort",
-                            "KVM Switch with 90W USB-C Charging"
-                    ))
                     .build();
 
-            p7.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+            p7.addImage(ProductImage.builder()
+                    .imageUrl("https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80")
+                    .displayOrder(0)
+                    .build());
+
+            p7.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
+            p7.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
+            p7.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
+            p7.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p7.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+
+            p7.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
+            p7.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
 
             if (colombo != null) p7.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(5).build());
             if (galle != null) p7.addBranchInventory(BranchInventory.builder().branch(galle).quantity(2).build());

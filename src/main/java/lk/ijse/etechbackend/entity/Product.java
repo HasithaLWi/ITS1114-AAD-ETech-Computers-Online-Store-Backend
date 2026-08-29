@@ -17,7 +17,7 @@ import java.util.Map;
 @Entity
 @Table(name = "products", indexes = {
         @Index(name = "idx_products_sku", columnList = "sku"),
-        @Index(name = "idx_products_category", columnList = "category_slug"),
+        @Index(name = "idx_products_category", columnList = "category_id"),
         @Index(name = "idx_products_price", columnList = "price")
 })
 @Getter
@@ -34,12 +34,17 @@ public class Product {
     @Column(name = "name", length = 255, nullable = false)
     private String name;
 
-    @Column(name = "category_slug", length = 100, nullable = false)
-    private String categorySlug;
+    @JoinColumn(name = "category_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
 
-    @Column(name = "brand", length = 100)
-    @Builder.Default
-    private String brand = "";
+    @JoinColumn(name = "brand_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Brand brand;
+
+    @JoinColumn(name = "badge_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Badge badge;
 
     @Column(name = "price", precision = 12, scale = 2, nullable = false)
     private BigDecimal price;
@@ -55,9 +60,6 @@ public class Product {
     @Builder.Default
     private Integer reviewsCount = 0;
 
-    @Column(name = "image_url", columnDefinition = "TEXT", nullable = false)
-    private String imageUrl;
-
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
@@ -66,10 +68,6 @@ public class Product {
 
     @Column(name = "sku", length = 100, nullable = false, unique = true)
     private String sku;
-
-    @Column(name = "badge", length = 50)
-    @Builder.Default
-    private String badge = "";
 
     @Column(name = "warranty", length = 150)
     @Builder.Default
@@ -83,15 +81,23 @@ public class Product {
     @Builder.Default
     private Integer lowStockMargin = 5;
 
-    @Convert(converter = JsonMapConverter.class)
-    @Column(name = "specs_json", columnDefinition = "JSON")
-    @Builder.Default
-    private Map<String, String> specs = new HashMap<>();
+//    @Convert(converter = JsonMapConverter.class)
+//    @Column(name = "specs_json", columnDefinition = "JSON")
+//    @Builder.Default
+//    private Map<String, String> specs = new HashMap<>();
 
-    @Convert(converter = JsonListConverter.class)
-    @Column(name = "features_json", columnDefinition = "JSON")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<String> features = new ArrayList<>();
+    private List<Specs> specs = new ArrayList<>();
+
+//    @Convert(converter = JsonListConverter.class)
+//    @Column(name = "features_json", columnDefinition = "JSON")
+//    @Builder.Default
+//    private List<String> features = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Features> features = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("displayOrder ASC")
@@ -138,6 +144,36 @@ public class Product {
         if (branchInventories != null) {
             branchInventories.remove(inventory);
             inventory.setProduct(null);
+        }
+    }
+
+    public void addSpec(Specs spec) {
+        if (specs == null) {
+            specs = new ArrayList<>();
+        }
+        specs.add(spec);
+        spec.setProduct(this);
+    }
+
+    public void removeSpec(Specs spec) {
+        if (specs != null) {
+            specs.remove(spec);
+            spec.setProduct(null);
+        }
+    }
+
+    public void addFeature(Features feature) {
+        if (features == null) {
+            features = new ArrayList<>();
+        }
+        features.add(feature);
+        feature.setProduct(this);
+    }
+
+    public void removeFeature(Features feature) {
+        if (features != null) {
+            features.remove(feature);
+            feature.setProduct(null);
         }
     }
 }

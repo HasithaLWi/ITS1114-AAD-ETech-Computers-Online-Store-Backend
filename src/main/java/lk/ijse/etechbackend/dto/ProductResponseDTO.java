@@ -20,17 +20,16 @@ public class ProductResponseDTO {
 
     private Long id;
     private String name;
-    private String categorySlug;
-    private String brand;
+    private String categoryId;
+    private String brandId;
     private BigDecimal price;
     private BigDecimal originalPrice;
     private BigDecimal rating;
     private Integer reviewsCount;
-    private String imageUrl;
     private String description;
     private String fullDescription;
     private String sku;
-    private String badge;
+    private String badgeId;
     private String warranty;
     private Boolean alertEnabled;
     private Integer lowStockMargin;
@@ -41,4 +40,7 @@ public class ProductResponseDTO {
     private Integer totalStock;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+
 }
+
