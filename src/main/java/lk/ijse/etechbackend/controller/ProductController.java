@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -57,38 +58,65 @@ public class ProductController {
                 .body(response)
                 .build());
     }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
-//        log.info("REST: Fetching product by ID: {}", id);
-//        ProductResponseDTO product = productService.getProductById(id);
-//        return ResponseEntity.ok(product);
-//    }
-//
-//    @GetMapping("/sku/{sku}")
-//    public ResponseEntity<ProductResponseDTO> getProductBySku(@PathVariable String sku) {
-//        log.info("REST: Fetching product by SKU: {}", sku);
-//        ProductResponseDTO product = productService.getProductBySku(sku);
-//        return ResponseEntity.ok(product);
-//    }
-//
-//    @PostMapping
-//    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
-//    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO request) {
-//        log.info("REST: Creating new product SKU: {}", request.getSku());
-//        ProductResponseDTO createdProduct = productService.createProduct(request);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
-//    }
-//
-//    @PutMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
-//    public ResponseEntity<ProductResponseDTO> updateProduct(
-//            @PathVariable Long id,
-//            @Valid @RequestBody ProductRequestDTO request) {
-//        log.info("REST: Updating product ID: {}", id);
-//        ProductResponseDTO updatedProduct = productService.updateProduct(id, request);
-//        return ResponseEntity.ok(updatedProduct);
-//    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CommonResponse> getProductById(@PathVariable Long id) {
+        log.info("REST: Fetching product by ID: {}", id);
+        ProductResponseDTO product = productService.getProductById(id);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product retrieved by Id, successfully")
+                .body(product)
+                .build());
+    }
+
+    @GetMapping("/sku/{sku}")
+    public ResponseEntity<CommonResponse> getProductBySku(@PathVariable String sku) {
+        log.info("REST: Fetching product by SKU: {}", sku);
+        ProductResponseDTO product = productService.getProductBySku(sku);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product retrieved by SKU, successfully")
+                .body(product)
+                .build());
+    }
+
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/create")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
+    public ResponseEntity<CommonResponse> createProduct(@Valid @RequestBody ProductRequestDTO request) {
+        log.info("REST: Creating new product SKU: {}", request.getSku());
+        ProductResponseDTO createdProduct = productService.createProduct(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(CommonResponse.builder()
+                .status(HttpStatus.CREATED.value())
+                .message("Product created successfully")
+                .build());
+    }
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
+    public ResponseEntity<CommonResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductRequestDTO request) {
+        log.info("REST: Updating product ID: {}", id);
+        ProductResponseDTO updatedProduct = productService.updateProduct(id, request);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product updated successfully")
+                .body(updatedProduct)
+                .build());
+    }
+
+    @PatchMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/update-inventory")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
+    public ResponseEntity<CommonResponse> updateBranchInventory(@RequestBody UpdateInventory updateInventory) {
+        log.info("REST: Updating branch inventory for product ID: {}", updateInventory.getProductId());
+        Map<String, Integer> updatedInventory = productService.updateBranchInventory(updateInventory);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Branch inventory updated successfully")
+                .body(updatedInventory)
+                .build());
+    }
 //
 //    @DeleteMapping("/{id}")
 //    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")

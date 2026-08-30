@@ -81,19 +81,9 @@ public class Product {
     @Builder.Default
     private Integer lowStockMargin = 5;
 
-//    @Convert(converter = JsonMapConverter.class)
-//    @Column(name = "specs_json", columnDefinition = "JSON")
-//    @Builder.Default
-//    private Map<String, String> specs = new HashMap<>();
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Specs> specs = new ArrayList<>();
-
-//    @Convert(converter = JsonListConverter.class)
-//    @Column(name = "features_json", columnDefinition = "JSON")
-//    @Builder.Default
-//    private List<String> features = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Features> features = new ArrayList<>();

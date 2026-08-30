@@ -23,12 +23,10 @@ public class ProductRequestDTO {
     @Size(max = 255, message = "Product name cannot exceed 255 characters")
     private String name;
 
-    @NotBlank(message = "Category slug is required")
-    @Size(max = 100, message = "Category slug cannot exceed 100 characters")
-    private String categorySlug;
+    @NotBlank(message = "Category ID is required")
+    private String categoryId;
 
-    @Size(max = 100, message = "Brand name cannot exceed 100 characters")
-    private String brand;
+    private String brandId;
 
     @NotNull(message = "Price is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
@@ -38,9 +36,6 @@ public class ProductRequestDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Original price must be greater than 0")
     private BigDecimal originalPrice;
 
-    @NotBlank(message = "Primary image URL is required")
-    private String imageUrl;
-
     private String description;
 
     private String fullDescription;
@@ -49,7 +44,7 @@ public class ProductRequestDTO {
     @Size(max = 100, message = "SKU cannot exceed 100 characters")
     private String sku;
 
-    private String badge;
+    private String badgeId;
 
     private String warranty;
 
