@@ -1,10 +1,7 @@
 package lk.ijse.etechbackend.controller;
 
 import jakarta.validation.Valid;
-import lk.ijse.etechbackend.dto.ApiResponse;
-import lk.ijse.etechbackend.dto.PageResponseDTO;
-import lk.ijse.etechbackend.dto.ProductRequestDTO;
-import lk.ijse.etechbackend.dto.ProductResponseDTO;
+import lk.ijse.etechbackend.dto.*;
 import lk.ijse.etechbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,32 +23,40 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE,value = "/all")
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+    public ResponseEntity<CommonResponse> getAllProducts() {
         List<ProductResponseDTO> productResponseDTOS = productService.getAllProducts();
-        return ResponseEntity.ok(productResponseDTOS);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Products retrieved successfully")
+                .body(productResponseDTOS)
+                .build());
     }
 
-//    @GetMapping
-//    public ResponseEntity<PageResponseDTO<ProductResponseDTO>> getAllProducts(
-//            @RequestParam(required = false) String category,
-//            @RequestParam(required = false) String brand,
-//            @RequestParam(required = false) String search,
-//            @RequestParam(required = false) BigDecimal minPrice,
-//            @RequestParam(required = false) BigDecimal maxPrice,
-//            @RequestParam(required = false) String badge,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "20") int size,
-//            @RequestParam(defaultValue = "id") String sortBy,
-//            @RequestParam(defaultValue = "asc") String sortDir) {
-//
-//        log.info("REST: Querying products - category: {}, brand: {}, search: {}, page: {}, size: {}",
-//                category, brand, search, page, size);
-//
-//        PageResponseDTO<ProductResponseDTO> response = productService.getAllProducts(
-//                category, brand, search, minPrice, maxPrice, badge, page, size, sortBy, sortDir);
-//
-//        return ResponseEntity.ok(response);
-//    }
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/filter")
+    public ResponseEntity<CommonResponse> getAllProducts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String badge,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
+        log.info("REST: Querying products - category: {}, brand: {}, search: {}, page: {}, size: {}",
+                category, brand, search, page, size);
+
+        List<ProductResponseDTO> response = productService.getFilteredProducts(
+                category, brand, search, minPrice, maxPrice, badge, page, size, sortBy, sortDir);
+
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Products retrieved successfully")
+                .body(response)
+                .build());
+    }
 //
 //    @GetMapping("/{id}")
 //    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {

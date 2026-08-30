@@ -1,12 +1,15 @@
 package lk.ijse.etechbackend.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CommonResponse {
 
     private int status;
@@ -17,4 +20,6 @@ public class CommonResponse {
         this.status = status;
         this.message = message;
     }
+
+
 }

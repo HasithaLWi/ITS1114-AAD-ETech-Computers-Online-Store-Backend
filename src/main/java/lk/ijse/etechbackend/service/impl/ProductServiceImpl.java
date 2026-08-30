@@ -110,6 +110,43 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getFilteredProducts(String category,
+            String brand,
+            String search,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String badge,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection) {
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String sortProperty = (sortBy != null && !sortBy.isBlank()) ? sortBy : "id";
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty));
+
+        Page<Product> productPage = productRepository.findProductsWithOptionalFilter(
+                category != null && !category.isBlank() ? category.trim().toLowerCase() : null,
+                brand != null && !brand.isBlank() ? brand.trim().toLowerCase() : null,
+                search != null && !search.isBlank() ? search.trim().toLowerCase() : null,
+                minPrice,
+                maxPrice,
+                badge != null && !badge.isBlank() ? badge.trim().toLowerCase() : null,
+                pageable
+        );
+
+        log.info("Fetched {} products with filters - category: {}, brand: {}, search: {}, minPrice: {}, " +
+                "maxPrice: {}, badge: {}, page: {}, size: {}", productPage.getNumberOfElements(),
+                category, brand, search, minPrice, maxPrice, badge, page, size);
+
+
+        return  productPage.getContent().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> getAllProducts() {
 
         log.debug("Fetching all products");

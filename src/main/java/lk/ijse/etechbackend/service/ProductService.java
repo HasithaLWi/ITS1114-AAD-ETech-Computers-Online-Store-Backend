@@ -10,6 +10,16 @@ import java.util.List;
 public interface ProductService {
 
     List<ProductResponseDTO> getAllProducts();
+    List<ProductResponseDTO> getFilteredProducts(String category,
+                                                 String brand,
+                                                 String search,
+                                                 BigDecimal minPrice,
+                                                 BigDecimal maxPrice,
+                                                 String badge,
+                                                 int page,
+                                                 int size,
+                                                 String sortBy,
+                                                 String sortDirection);
 
 //    PageResponseDTO<ProductResponseDTO> getAllProducts(
 //            String category,
