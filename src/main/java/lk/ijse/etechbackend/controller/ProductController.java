@@ -86,6 +86,17 @@ public class ProductController {
                 .build());
     }
 
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/status")
+    public ResponseEntity<CommonResponse> getProductsByStatus(@RequestParam String status) {
+        log.info("REST: Fetching products by status: {}", status);
+        List<ProductResponseDTO> products = productService.getByProductStatus(status);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Products retrieved by status, successfully")
+                .body(products)
+                .build());
+    }
+
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/create")
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
     public ResponseEntity<CommonResponse> createProduct(@Valid @RequestBody ProductRequestDTO request) {

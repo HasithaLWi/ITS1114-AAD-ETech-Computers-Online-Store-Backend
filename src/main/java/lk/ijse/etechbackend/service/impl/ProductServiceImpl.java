@@ -118,6 +118,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getByProductStatus(String productStatus) {
+        log.debug("Fetching products by status: {}", productStatus);
+        Status enumStatus;
+        try {
+            enumStatus = Status.valueOf(productStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Invalid status value: " + productStatus);
+        }
+        List<Product> products = productRepository.findAllByProductStatus(enumStatus);
+        return products.stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         log.info("Creating new product with SKU: {}", request.getSku());
 

@@ -26,6 +26,10 @@ public interface CategoryRepository extends JpaRepository<Category, String> {
     boolean existsByName(String name);
 
     @Query("SELECT new lk.ijse.etechbackend.dto.categorydto.CategoryResponseDTO(c.id, c.superCategory.id, c.name, c.slug, c.icon, c.description, c.featured, c.displayOrder, c.categoryStatus, c.createdAt, c.updatedAt) " +
+            "FROM Category c WHERE c.categoryStatus = :status ORDER BY c.displayOrder ASC")
+    List<CategoryResponseDTO> findAllByStatus(@Param("status") String status);
+
+    @Query("SELECT new lk.ijse.etechbackend.dto.categorydto.CategoryResponseDTO(c.id, c.superCategory.id, c.name, c.slug, c.icon, c.description, c.featured, c.displayOrder, c.categoryStatus, c.createdAt, c.updatedAt) " +
             "FROM Category c WHERE c.categoryStatus != 'DELETED' AND (c.name LIKE %:search% OR c.slug LIKE %:search%) ORDER BY c.displayOrder ASC")
     List<CategoryResponseDTO> findAllBySearch(@Param("search") String search);
 

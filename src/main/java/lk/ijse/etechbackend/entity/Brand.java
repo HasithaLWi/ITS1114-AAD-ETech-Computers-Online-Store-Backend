@@ -1,6 +1,7 @@
 package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,9 +57,9 @@ public class Brand {
     @Builder.Default
     private Boolean featured = false;
 
-    @Column(name = "active")
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Boolean active = true;
+    private Status status =  Status.ACTIVE;
 
     @Column(name = "display_order")
     @Builder.Default

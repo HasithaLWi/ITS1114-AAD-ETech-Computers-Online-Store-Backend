@@ -16,6 +16,8 @@ public interface CategoryService {
 
     List<CategoryResponseDTO> filterCategory(String search);
 
+    List<CategoryResponseDTO> getByStatus(String status);
+
     void createCategory(CategoryRequestDTO categoryRequestDTO);
 
     void updateCategory(String id, CategoryRequestDTO categoryRequestDTO);

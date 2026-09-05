@@ -2,6 +2,7 @@ package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
 import lk.ijse.etechbackend.enumiration.BadgeRuleType;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -73,9 +74,9 @@ public class Badge {
     @Builder.Default
     private Boolean canDelete = true;
 
-    @Column(name = "is_active")
+    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Boolean isActive = true;
+    private Status status = Status.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

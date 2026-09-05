@@ -1,5 +1,6 @@
 package lk.ijse.etechbackend.service.impl;
 
+import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
 import lk.ijse.etechbackend.entity.Product;
 import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.exception.BadRequestException;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -66,6 +68,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponseDTO> filterCategory(String search) {
         return categoryRepository.findAllBySearch(search);
+    }
+
+    @Override
+    public List<CategoryResponseDTO> getByStatus(String status) {
+        log.debug("Fetching categories by status: {}", status);
+        return categoryRepository.findAllByStatus(status);
     }
 
 

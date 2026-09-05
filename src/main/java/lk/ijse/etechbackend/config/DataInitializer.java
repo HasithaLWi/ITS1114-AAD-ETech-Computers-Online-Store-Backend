@@ -2,6 +2,7 @@ package lk.ijse.etechbackend.config;
 
 import lk.ijse.etechbackend.entity.*;
 import lk.ijse.etechbackend.enumiration.BadgeRuleType;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.enumiration.UserRole;
 import lk.ijse.etechbackend.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -237,7 +238,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("In Search of Incredible")
                             .description("Leading provider of ROG gaming hardware, laptops, motherboards, and displays.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(1)
                             .build(),
                     Brand.builder()
@@ -251,7 +252,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("True Gaming")
                             .description("World leader in AI PCs, gaming laptops, graphics cards, and enthusiast components.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(2)
                             .build(),
                     Brand.builder()
@@ -265,7 +266,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("Game On")
                             .description("High-performance gaming gear, liquid cooling, power supplies, and iCUE ecosystem.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(3)
                             .build(),
                     Brand.builder()
@@ -279,7 +280,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("Do More")
                             .description("Cutting-edge Core Ultra processors and advanced semiconductor innovation.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(4)
                             .build(),
                     Brand.builder()
@@ -293,7 +294,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("Defy Logic")
                             .description("Premier gaming mice, keyboards, simulation wheels, and professional audio gear.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(5)
                             .build(),
                     Brand.builder()
@@ -307,7 +308,7 @@ public class DataInitializer implements CommandLineRunner {
                             .tagline("For Gamers. By Gamers.")
                             .description("Global gaming lifestyle brand renowned for Chroma RGB peripherals and Blade laptops.")
                             .featured(true)
-                            .active(true)
+                            .status(Status.ACTIVE)
                             .displayOrder(6)
                             .build()
             );
@@ -336,7 +337,7 @@ public class DataInitializer implements CommandLineRunner {
                             .isSystemDefault(true)
                             .canEdit(false)
                             .canDelete(false)
-                            .isActive(true)
+                            .status(Status.ACTIVE)
                             .build(),
                     Badge.builder()
                             .id("bdg-bestseller")
@@ -352,7 +353,7 @@ public class DataInitializer implements CommandLineRunner {
                             .isSystemDefault(true)
                             .canEdit(true)
                             .canDelete(false)
-                            .isActive(true)
+                            .status(Status.ACTIVE)
                             .build(),
                     Badge.builder()
                             .id("bdg-toprated")
@@ -368,7 +369,7 @@ public class DataInitializer implements CommandLineRunner {
                             .isSystemDefault(true)
                             .canEdit(true)
                             .canDelete(false)
-                            .isActive(true)
+                            .status(Status.ACTIVE)
                             .build(),
                     Badge.builder()
                             .id("bdg-new")
@@ -384,7 +385,7 @@ public class DataInitializer implements CommandLineRunner {
                             .isSystemDefault(true)
                             .canEdit(true)
                             .canDelete(false)
-                            .isActive(true)
+                            .status(Status.ACTIVE)
                             .build()
             );
 

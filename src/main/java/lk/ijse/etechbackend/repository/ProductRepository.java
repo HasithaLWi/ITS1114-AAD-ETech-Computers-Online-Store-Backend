@@ -2,6 +2,7 @@ package lk.ijse.etechbackend.repository;
 
 import lk.ijse.etechbackend.entity.Category;
 import lk.ijse.etechbackend.entity.Product;
+import lk.ijse.etechbackend.enumiration.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -46,15 +47,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     boolean existsBySkuAndIdNot(String sku, Long id);
 
-    List<Product> findByCategorySlug(String categorySlug);
-
-    List<Product> findByBrandIgnoreCase(String brand);
-
-    List<Product> findByBadgeIgnoreCase(String badge);
-
-    long countByCategorySlug(String categorySlug);
-
-    long countByBrandIgnoreCase(String brand);
+    List<Product> findAllByProductStatus(Status productStatus);
 
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.images LEFT JOIN FETCH p.branchInventories bi LEFT JOIN FETCH bi.branch WHERE p.id = :id")
     Optional<Product> findByIdWithDetails(@Param("id") Long id);

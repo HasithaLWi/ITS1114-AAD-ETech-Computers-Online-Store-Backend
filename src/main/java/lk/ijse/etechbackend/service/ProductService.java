@@ -27,6 +27,8 @@ public interface ProductService {
 
     ProductResponseDTO getProductBySku(String sku);
 
+    List<ProductResponseDTO> getByProductStatus(String productStatus);
+
     ProductResponseDTO createProduct(ProductRequestDTO request);
 
     ProductResponseDTO updateProduct(Long id, ProductRequestDTO request);

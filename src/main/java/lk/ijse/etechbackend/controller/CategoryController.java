@@ -80,6 +80,16 @@ public class CategoryController {
                 .build());
     }
 
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/status")
+    public ResponseEntity<CommonResponse> getCategoriesByStatus(@RequestParam String status) {
+        log.info("REST: Retrieving categories by status - {}", status);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Categories retrieved successfully")
+                .body(categoryService.getByStatus(status))
+                .build());
+    }
+
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/update/{id}")
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
     public ResponseEntity<CommonResponse> updateCategory(@PathVariable String id, @RequestBody CategoryRequestDTO categoryRequestDTO) {
