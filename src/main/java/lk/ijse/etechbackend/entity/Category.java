@@ -1,6 +1,7 @@
 package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,10 @@ public class Category {
     @Column(name = "id", length = 50)
     private String id; // e.g. "cat-laptops", "cat-components"
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "super_category_id")
+    private Category superCategory;
+
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
@@ -47,6 +52,10 @@ public class Category {
     @Builder.Default
     private Integer displayOrder = 0;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Status categoryStatus =  Status.ACTIVE;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -55,6 +64,6 @@ public class Category {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private Set<Product> products = new HashSet<>();
 }

@@ -3,6 +3,7 @@ package lk.ijse.etechbackend.entity;
 import jakarta.persistence.*;
 import lk.ijse.etechbackend.converter.JsonListConverter;
 import lk.ijse.etechbackend.converter.JsonMapConverter;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -97,6 +98,11 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<BranchInventory> branchInventories = new ArrayList<>();
+
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private Status productStatus = Status.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

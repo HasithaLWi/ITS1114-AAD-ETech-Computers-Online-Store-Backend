@@ -1,11 +1,9 @@
 package lk.ijse.etechbackend.service;
 
-import lk.ijse.etechbackend.dto.PageResponseDTO;
-import lk.ijse.etechbackend.dto.ProductRequestDTO;
-import lk.ijse.etechbackend.dto.ProductResponseDTO;
-import lk.ijse.etechbackend.dto.UpdateInventory;
-import lk.ijse.etechbackend.entity.BranchInventory;
-import org.hibernate.annotations.UpdateTimestamp;
+import lk.ijse.etechbackend.dto.productsdto.ProductRequestDTO;
+import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
+import lk.ijse.etechbackend.dto.productsdto.UpdateInventory;
+import lk.ijse.etechbackend.enumiration.Status;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,6 +32,8 @@ public interface ProductService {
     ProductResponseDTO updateProduct(Long id, ProductRequestDTO request);
 
     Map<String, Integer> updateBranchInventory(UpdateInventory updateInventory);
-//
-//    void deleteProduct(Long id);
+
+    void updateProductStatus(Long id, Status status);
+
+    void deleteProduct(Long id);
 }

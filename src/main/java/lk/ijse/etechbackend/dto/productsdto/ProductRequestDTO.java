@@ -1,9 +1,10 @@
-package lk.ijse.etechbackend.dto;
+package lk.ijse.etechbackend.dto.productsdto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,4 +61,6 @@ public class ProductRequestDTO {
     private List<String> images;
 
     private Map<String, Integer> branchStock;
+
+    private Status productStatus;
 }

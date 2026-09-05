@@ -1,28 +1,24 @@
 package lk.ijse.etechbackend.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
-import lk.ijse.etechbackend.dto.PageResponseDTO;
-import lk.ijse.etechbackend.dto.ProductRequestDTO;
-import lk.ijse.etechbackend.dto.ProductResponseDTO;
-import lk.ijse.etechbackend.dto.UpdateInventory;
+import lk.ijse.etechbackend.dto.productsdto.ProductRequestDTO;
+import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
+import lk.ijse.etechbackend.dto.productsdto.UpdateInventory;
 import lk.ijse.etechbackend.entity.*;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.exception.BadRequestException;
 import lk.ijse.etechbackend.exception.ResourceNotFoundException;
 import lk.ijse.etechbackend.repository.*;
 import lk.ijse.etechbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.BeanRegistry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
         log.debug("Fetching all products");
 
-        List<Product> productPage = productRepository.findAll();
+        List<Product> productPage = productRepository.findAllProducts();
 
         List<ProductResponseDTO> content = productPage.stream()
                 .map(this::mapToResponseDTO)
@@ -103,6 +99,9 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Fetching product by ID: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+        if(product.getProductStatus() == Status.DELETED) {
+            throw new ResourceNotFoundException("Product not found with ID: " + id);
+        }
         return mapToResponseDTO(product);
     }
 
@@ -112,6 +111,9 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Fetching product by SKU: {}", sku);
         Product product = productRepository.findBySku(sku)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with SKU: " + sku));
+        if(product.getProductStatus() == Status.DELETED) {
+            throw new ResourceNotFoundException("Product not found with SKU: " + sku);
+        }
         return mapToResponseDTO(product);
     }
 
@@ -157,6 +159,7 @@ public class ProductServiceImpl implements ProductService {
                 .warranty(request.getWarranty() != null ? request.getWarranty().trim() : "2-Year Warranty")
                 .alertEnabled(request.getAlertEnabled() != null ? request.getAlertEnabled() : true)
                 .lowStockMargin(request.getLowStockMargin() != null ? request.getLowStockMargin() : 5)
+                .productStatus(request.getProductStatus() != null ? request.getProductStatus() : Status.ACTIVE)
                 .build();
 
         // Attach gallery images (max 5)
@@ -251,10 +254,10 @@ public class ProductServiceImpl implements ProductService {
         product.setFullDescription(request.getFullDescription());
         product.setSku(request.getSku().trim());
         product.setBadge(badge);
-        product.setWarranty(request.getWarranty() != null ? request.getWarranty().trim() : "2-Year Warranty");
+        product.setWarranty(request.getWarranty() != null ? request.getWarranty().trim() : "No Warranty");
         product.setAlertEnabled(request.getAlertEnabled() != null ? request.getAlertEnabled() : true);
         product.setLowStockMargin(request.getLowStockMargin() != null ? request.getLowStockMargin() : 5);
-
+        product.setProductStatus(request.getProductStatus() != null ? request.getProductStatus() : product.getProductStatus());
 //        List<Specs> existingSpecs = product.getSpecs();
 //        specsRepository.deleteAll(existingSpecs);
 
@@ -360,15 +363,32 @@ public class ProductServiceImpl implements ProductService {
 
         return updatedBranchStock;
     }
-//
-//    @Override
-//    public void deleteProduct(Long id) {
-//        log.info("Deleting product ID: {}", id);
-//        Product product = productRepository.findById(id)
-//                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
-//        productRepository.delete(product);
-//        log.info("Successfully deleted product ID: {}", id);
-//    }
+
+    @Override
+    public void updateProductStatus(Long id, Status status) {
+        Optional<Product> productOpt = productRepository.findById(id);
+        if (productOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found with ID: " + id);
+        }
+        Product product = productOpt.get();
+        product.setProductStatus(status);
+        productRepository.save(product);
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        log.info("Deleting product ID: {}", id);
+        Optional<Product> productOpt = productRepository.findById(id);
+        if (productOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Product not found with ID: " + id);
+        }
+        Product product = productOpt.get();
+
+        product.setProductStatus(Status.DELETED);
+
+        productRepository.save(product);
+        log.info("Successfully deleted product ID: {}", id);
+    }
 
     private ProductResponseDTO mapToResponseDTO(Product product) {
         List<String> imageUrls = new ArrayList<>();
@@ -408,7 +428,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductResponseDTO.builder()
                 .id(product.getId())
                 .name(product.getName())
-                .categoryId(product.getCategory().getId())
+                .categoryId(product.getCategory() != null ? product.getCategory().getId() : null)
                 .brandId(product.getBrand().getId())
                 .price(product.getPrice())
                 .originalPrice(product.getOriginalPrice())
@@ -426,6 +446,7 @@ public class ProductServiceImpl implements ProductService {
                 .images(imageUrls)
                 .branchStock(branchStock)
                 .totalStock(totalStock)
+                .productStatus(product.getProductStatus())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();

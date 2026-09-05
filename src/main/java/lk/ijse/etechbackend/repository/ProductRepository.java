@@ -1,5 +1,6 @@
 package lk.ijse.etechbackend.repository;
 
+import lk.ijse.etechbackend.entity.Category;
 import lk.ijse.etechbackend.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +18,16 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     @Query("SELECT p FROM Product p " +
-            "WHERE (:category IS NULL OR p.category = :category) " +
+            "LEFT JOIN p.category c " +
+            "LEFT JOIN c.superCategory sc " +
+            "LEFT JOIN sc.superCategory ssc " +
+            "WHERE (:category IS NULL OR c.id = :category OR sc.id = :category OR ssc.id = :category) " +
             "AND (:brand IS NULL OR p.brand = :brand) " +
             "AND (:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
-            "AND (:badge IS NULL OR p.badge = :badge)")
+            "AND (:badge IS NULL OR p.badge = :badge) " +
+            "AND (p.productStatus = 'ACTIVE')")
     Page<Product> findProductsWithOptionalFilter(@Param("category") String category,
                                                    @Param("brand") String brand,
                                                    @Param("search") String search,
@@ -30,8 +35,12 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                                                    @Param("maxPrice") BigDecimal maxPrice,
                                                    @Param("badge") String badge,
                                                    Pageable pageable);
+    @Query("SELECT p FROM Product  p WHERE p.productStatus != 'DELETED'")
+    List<Product> findAllProducts();
 
     Optional<Product> findBySku(String sku);
+
+    List<Product> findByCategory(Category category);
 
     boolean existsBySku(String sku);
 

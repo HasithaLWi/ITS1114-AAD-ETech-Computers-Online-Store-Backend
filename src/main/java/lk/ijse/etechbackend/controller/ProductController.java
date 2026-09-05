@@ -2,6 +2,10 @@ package lk.ijse.etechbackend.controller;
 
 import jakarta.validation.Valid;
 import lk.ijse.etechbackend.dto.*;
+import lk.ijse.etechbackend.dto.productsdto.ProductRequestDTO;
+import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
+import lk.ijse.etechbackend.dto.productsdto.UpdateInventory;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -118,12 +122,27 @@ public class ProductController {
                 .body(updatedInventory)
                 .build());
     }
-//
-//    @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
-//    public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
-//        log.info("REST: Deleting product ID: {}", id);
-//        productService.deleteProduct(id);
-//        return ResponseEntity.ok(ApiResponse.success("Product removed"));
-//    }
+
+    @PatchMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/update-status/{id}")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+    public ResponseEntity<CommonResponse> updateProductStatus(
+            @PathVariable Long id,
+            @RequestParam Status status) {
+        productService.updateProductStatus(id, status);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product status updated successfully")
+                .build());
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+    public ResponseEntity<CommonResponse> deleteProduct(@PathVariable Long id) {
+        log.info("REST: Deleting product ID: {}", id);
+        productService.deleteProduct(id);
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Product removed")
+                .build());
+    }
 }

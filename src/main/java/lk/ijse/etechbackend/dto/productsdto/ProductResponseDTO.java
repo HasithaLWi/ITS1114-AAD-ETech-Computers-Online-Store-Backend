@@ -1,6 +1,7 @@
-package lk.ijse.etechbackend.dto;
+package lk.ijse.etechbackend.dto.productsdto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lk.ijse.etechbackend.enumiration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,7 @@ public class ProductResponseDTO {
     private List<String> images;
     private Map<String, Integer> branchStock;
     private Integer totalStock;
+    private Status productStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
