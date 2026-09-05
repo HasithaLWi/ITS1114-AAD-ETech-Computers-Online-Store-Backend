@@ -22,6 +22,7 @@ public class UserDTO {
     private String email;
     private String password;
     private UserRole role;
+    private lk.ijse.etechbackend.enumiration.Status status;
     private String assignedBranch;
     private Boolean canManage;
     private LocalDateTime createdAt;

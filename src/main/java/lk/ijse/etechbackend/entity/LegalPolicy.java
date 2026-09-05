@@ -1,15 +1,12 @@
 package lk.ijse.etechbackend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lk.ijse.etechbackend.converter.JsonObjectConverter;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "legal_policies")
@@ -33,11 +30,19 @@ public class LegalPolicy {
     @Column(name = "last_updated", length = 50)
     private String lastUpdated;
 
-    @Convert(converter = JsonObjectConverter.class)
-    @Column(name = "sections_json", columnDefinition = "JSON", nullable = false)
-    private Object sections;
+
+    @OneToMany(mappedBy = "legalPolicy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PolicySections> policySections;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void addPolicySection(PolicySections section) {
+        if (policySections == null) {
+            policySections = new ArrayList<>();
+        }
+        policySections.add(section);
+        section.setLegalPolicy(this);
+    }
 }

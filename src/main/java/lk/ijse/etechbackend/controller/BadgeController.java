@@ -134,4 +134,15 @@ public class BadgeController {
                 .message("Badge permanently deleted successfully")
                 .build());
     }
+
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/auto-assign")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+    public ResponseEntity<CommonResponse> autoAssignBadges() {
+        log.info("REST: Running automated badge assignment rule engine");
+        return ResponseEntity.ok(CommonResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Badges auto-assigned successfully")
+                .body(badgeService.autoAssignBadges())
+                .build());
+    }
 }

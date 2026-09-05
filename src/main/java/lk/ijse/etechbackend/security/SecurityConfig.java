@@ -43,26 +43,30 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // Auth endpoints
+                        // Auth & System Roles endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").permitAll()
 
-                        // Public Storefront Catalog GET endpoints
+                        // Public Storefront & Guest endpoints
                         .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/brands/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/badges/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/promotions/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/branches/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/branches/nearest").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/policies/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/business-profile/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/newsletter/subscribe").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/newsletter/unsubscribe").permitAll()
+                        .requestMatchers("/api/v1/chat/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/orders/{orderCode}").permitAll()
 
                         // User profile self-management
                         .requestMatchers("/api/v1/users/me/**").authenticated()
 
-                        // User administration (SUPERADMIN and ADMIN)
-                        .requestMatchers("/api/v1/users/**").hasAnyRole("SUPERADMIN", "ADMIN")
-
-                        // All other endpoints require authentication
+                        // All other endpoints require authentication (handled by method-level @PreAuthorize)
                         .anyRequest().authenticated()
                 );
 

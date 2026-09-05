@@ -22,4 +22,9 @@ public interface UserService {
     UserDTO updateProfile(String currentUsername, UserDTO request);
 
     void changePassword(String currentUsername, UserDTO request);
+
+    List<String> getRoles();
+
+    UserDTO updateUserStatus(String currentUsername, Long id, UserDTO request);
 }
+

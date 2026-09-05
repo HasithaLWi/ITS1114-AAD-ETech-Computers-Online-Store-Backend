@@ -1,9 +1,7 @@
 package lk.ijse.etechbackend.config;
 
 import lk.ijse.etechbackend.entity.*;
-import lk.ijse.etechbackend.enumiration.BadgeRuleType;
-import lk.ijse.etechbackend.enumiration.Status;
-import lk.ijse.etechbackend.enumiration.UserRole;
+import lk.ijse.etechbackend.enumiration.*;
 import lk.ijse.etechbackend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,15 @@ public class DataInitializer implements CommandLineRunner {
     private final BrandRepository brandRepository;
     private final BadgeRepository badgeRepository;
     private final ProductRepository productRepository;
+    private final BusinessProfileRepository businessProfileRepository;
+    private final LegalPolicyRepository legalPolicyRepository;
+    private final HotDealRepository hotDealRepository;
+    private final HomeDealBannerRepository homeDealBannerRepository;
+    private final DealBundleRepository dealBundleRepository;
+    private final NewsletterSubscriberRepository newsletterSubscriberRepository;
+    private final ProductReviewRepository productReviewRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PolicySectionRepository policySectionRepository;
 
     @Override
     public void run(String... args) {
@@ -38,6 +45,11 @@ public class DataInitializer implements CommandLineRunner {
         seedBrands();
         seedBadges();
         seedProducts();
+        seedBusinessProfile();
+        seedPolicies();
+        seedPromotions();
+        seedNewsletterSubscribers();
+        seedProductReviews();
         log.info("--- DATA INITIALIZER FINISHED! ---");
     }
 
@@ -648,6 +660,229 @@ public class DataInitializer implements CommandLineRunner {
 
             productRepository.saveAll(List.of(p1, p2, p3, p4, p5, p6, p7));
             log.info("Successfully seeded 7 sample products with branch inventories and gallery images!");
+        }
+    }
+
+    private void seedBusinessProfile() {
+        if (businessProfileRepository.count() == 0) {
+            log.info("Seeding company business profile...");
+            BusinessProfile profile = BusinessProfile.builder()
+                    .id(1)
+                    .storeName("ETech Computers (Pvt) Ltd")
+                    .tagline("Sri Lanka's Premier Next-Gen High Performance Computing & Gaming Hub")
+                    .registrationNo("PV-00249581")
+                    .taxId("TIN-100294829-7000")
+                    .isoCert("ISO 9001:2015 Certified")
+                    .supportEmail("support@etechcomputers.lk")
+                    .hotline("1330")
+                    .headquarters("450 Galle Road, Kollupitiya, Colombo 03, Sri Lanka")
+                    .workingHours("Mon - Fri: 09:00 AM - 07:00 PM | Sat - Sun: 10:00 AM - 05:00 PM")
+                    .missionStatement("Empowering gamers, creators, and enterprises with the latest high-performance computing hardware.")
+                    .companyStory("Founded in Colombo, ETech Computers has grown to be Sri Lanka's leading enthusiast computer hardware supplier.")
+                    .build();
+            businessProfileRepository.save(profile);
+            log.info("Successfully seeded business profile!");
+        }
+    }
+
+    private void seedPolicies() {
+        if (legalPolicyRepository.count() == 0) {
+            log.info("Seeding legal policies...");
+            LegalPolicy lp1 = LegalPolicy.builder()
+                    .id("terms-of-service")
+                    .title("Terms of Service")
+                    .subtitle("Store terms, purchase agreements, order conditions, and customer service level agreements.")
+                    .lastUpdated("January 2026")
+                    .build();
+            lp1.addPolicySection(PolicySections.builder()
+                    .id("terms-of-service-3")
+                    .sectionTitle("Shipping & Delivery")
+                    .sectionContent("We offer nationwide delivery with tracking. Estimated delivery times vary based on location and product availability.")
+                    .legalPolicy(lp1)
+                    .build());
+            lp1.addPolicySection(PolicySections.builder()
+                    .id("terms-of-service-2")
+                    .sectionTitle("Order Fulfillment & Pricing")
+                    .sectionContent("All hardware prices are listed in Sri Lankan Rupees (LKR) with applicable VAT included. Orders are subject to stock validation and branch warehouse confirmation.")
+                    .legalPolicy(lp1)
+                    .build());
+
+            List<LegalPolicy> policies = List.of(
+                    LegalPolicy.builder()
+                            .id("terms-of-service")
+                            .title("Terms of Service")
+                            .subtitle("Store terms, purchase agreements, order conditions, and customer service level agreements.")
+                            .lastUpdated("January 2026")
+                            .policySections(policySectionRepository.saveAll(List.of(
+                                    PolicySections.builder()
+                                            .id("terms-of-service-1")
+                                            .sectionTitle("Acceptance of Terms")
+                                            .sectionContent("By accessing ETech Computers, you agree to comply with our purchasing policies, payment protocols, and electronic communication guidelines.")
+                                            .build(),
+                                    PolicySections.builder()
+                                            .id("terms-of-service-2")
+                                            .sectionTitle("Order Fulfillment & Pricing")
+                                            .sectionContent("All hardware prices are listed in Sri Lankan Rupees (LKR) with applicable VAT included. Orders are subject to stock validation and branch warehouse confirmation.")
+                                            .build()
+                            )))
+                            .build(),
+                    LegalPolicy.builder()
+                            .id("privacy-policy")
+                            .title("Privacy Policy & Data Security")
+                            .subtitle("User data security, cookie consent, tracking regulations, and GDPR/local privacy policy compliance.")
+                            .lastUpdated("January 2026")
+                            .policySections(policySectionRepository.saveAll(List.of(
+                                    PolicySections.builder()
+                                            .id("privacy-policy-1")
+                                            .sectionTitle("Information Collection")
+                                            .sectionContent("We securely collect user account details, shipping addresses, and transaction audit logs strictly to provide exceptional e-commerce experiences.")
+                                            .build(),
+                                    PolicySections.builder()
+                                            .id("privacy-policy-2")
+                                            .sectionTitle("Data Protection Standards")
+                                            .sectionContent("Customer records and authentication credentials are encrypted using industry-standard BCrypt and TLS 1.3 algorithms.")
+                                            .build()
+                            )))
+                            .build(),
+                    LegalPolicy.builder()
+                            .id("warranty-guarantee")
+                            .title("Guarantee & Warranty Terms")
+                            .subtitle("Official distributor manufacturer warranty policies, RMA claims process, replacement procedures, and SLA details.")
+                            .lastUpdated("January 2026")
+                            .policySections(policySectionRepository.saveAll(List.of(
+                                    PolicySections.builder()
+                                            .id("warranty-guarantee-1")
+                                            .sectionTitle("Manufacturer Warranty Coverage")
+                                            .sectionContent("All laptops, GPUs, motherboards, and monitors are backed by authentic manufacturer warranties ranging from 2 to 3 years.")
+                                            .build(),
+                                    PolicySections.builder()
+                                            .id("warranty-guarantee-2")
+                                            .sectionTitle("RMA Return Protocols")
+                                            .sectionContent("Hardware claims can be submitted at any of our regional branch hubs across Colombo, Galle, Matara, or Kandy for priority diagnosis.")
+                                            .build()
+                            )))
+                            .build()
+            );
+            legalPolicyRepository.saveAll(policies);
+            log.info("Successfully seeded {} legal policies!", policies.size());
+        }
+    }
+
+    private void seedPromotions() {
+        if (homeDealBannerRepository.count() == 0) {
+            log.info("Seeding home deal banner...");
+            HomeDealBanner banner = HomeDealBanner.builder()
+                    .id(1)
+                    .dealTag("WEEKEND TECH BLOWOUT")
+                    .heading("Next-Gen AI & Extreme Gaming Powerhouses")
+                    .subtitle("Save up to 25% on ultra-high performance RTX 40-Series gaming laptops and OLED displays.")
+                    .buttonText("Shop Weekend Deals")
+                    .buttonUrl("#deals")
+                    .durationSeconds(86400 * 3)
+                    .isActive(true)
+                    .build();
+            homeDealBannerRepository.save(banner);
+        }
+
+        if (hotDealRepository.count() == 0) {
+            log.info("Seeding hot deals...");
+            Product rtxGpu = productRepository.findBySku("ETC-GPU-001").orElse(null);
+            Product oledMon = productRepository.findBySku("ETC-MON-001").orElse(null);
+
+            if (rtxGpu != null) {
+                hotDealRepository.save(HotDeal.builder()
+                        .product(rtxGpu)
+                        .originalPrice(rtxGpu.getPrice())
+                        .promoPrice(new BigDecimal("299999.00"))
+                        .discountPercent(10)
+                        .durationSeconds(86400 * 3)
+                        .isActive(true)
+                        .build());
+            }
+            if (oledMon != null) {
+                hotDealRepository.save(HotDeal.builder()
+                        .product(oledMon)
+                        .originalPrice(oledMon.getPrice())
+                        .promoPrice(new BigDecimal("389999.00"))
+                        .discountPercent(12)
+                        .durationSeconds(86400 * 4)
+                        .isActive(true)
+                        .build());
+            }
+        }
+
+        if (dealBundleRepository.count() == 0) {
+            log.info("Seeding deal bundles...");
+            Product lap = productRepository.findBySku("ETC-LAP-001").orElse(null);
+            Product mouse = productRepository.findBySku("ETC-MOU-001").orElse(null);
+            Product kb = productRepository.findBySku("ETC-KEY-001").orElse(null);
+
+            if (lap != null && mouse != null && kb != null) {
+                DealBundle bundle = DealBundle.builder()
+                        .title("Ultimate ROG RTX 4090 Battlestation Pro Bundle")
+                        .subtitle("Flagship ROG SCAR 18 paired with Logitech Superlight 2 mouse and Razer Huntsman V3 Pro keyboard.")
+                        .imageUrl("https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&auto=format&fit=crop&q=80")
+                        .price(new BigDecimal("929999.00"))
+                        .originalPrice(new BigDecimal("977499.00"))
+                        .targetQuota(20)
+                        .soldCount(4)
+                        .durationSeconds(86400 * 5)
+                        .isActive(true)
+                        .build();
+
+                bundle.addBundleItem(BundleItem.builder().product(lap).quantity(1).displayOrder(1).build());
+                bundle.addBundleItem(BundleItem.builder().product(mouse).quantity(1).displayOrder(2).build());
+                bundle.addBundleItem(BundleItem.builder().product(kb).quantity(1).displayOrder(3).build());
+
+                dealBundleRepository.save(bundle);
+                log.info("Successfully seeded deal bundle!");
+            }
+        }
+    }
+
+    private void seedNewsletterSubscribers() {
+        if (newsletterSubscriberRepository.count() == 0) {
+            log.info("Seeding newsletter subscribers...");
+            List<NewsletterSubscriber> subscribers = List.of(
+                    NewsletterSubscriber.builder()
+                            .email("john.gamer@gmail.com")
+                            .name("John Gamer")
+                            .status(SubscriberStatus.SUBSCRIBED)
+                            .source(SubscriberSource.STOREFRONT_BANNER)
+                            .tags(List.of("gamers", "hardware"))
+                            .build(),
+                    NewsletterSubscriber.builder()
+                            .email("saman.tech@sltnet.lk")
+                            .name("Saman Perera")
+                            .status(SubscriberStatus.SUBSCRIBED)
+                            .source(SubscriberSource.DEALS_PAGE)
+                            .tags(List.of("promotions", "workstations"))
+                            .build()
+            );
+            newsletterSubscriberRepository.saveAll(subscribers);
+            log.info("Successfully seeded {} newsletter subscribers!", subscribers.size());
+        }
+    }
+
+    private void seedProductReviews() {
+        if (productReviewRepository.count() == 0) {
+            log.info("Seeding product reviews...");
+            Product lap = productRepository.findBySku("ETC-LAP-001").orElse(null);
+            User kasun = userRepository.findByUsername("kasun").orElse(null);
+
+            if (lap != null) {
+                ProductReview review = ProductReview.builder()
+                        .id("REV-10001")
+                        .product(lap)
+                        .user(kasun)
+                        .userName("Kasun Perera")
+                        .userEmail(kasun != null ? kasun.getEmail() : "kasun.p@gmail.com")
+                        .rating(5)
+                        .comment("Unbelievable power! Handles 4K gaming and 3D rendering like a breeze. Truly best laptop in Sri Lanka.")
+                        .build();
+                productReviewRepository.save(review);
+                log.info("Successfully seeded product review!");
+            }
         }
     }
 }

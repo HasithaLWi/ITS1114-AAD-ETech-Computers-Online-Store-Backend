@@ -1,8 +1,6 @@
 package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
-import lk.ijse.etechbackend.converter.JsonListConverter;
-import lk.ijse.etechbackend.converter.JsonMapConverter;
 import lk.ijse.etechbackend.enumiration.Status;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

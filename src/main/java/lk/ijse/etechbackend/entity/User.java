@@ -40,6 +40,11 @@ public class User {
     @Builder.Default
     private UserRole role = UserRole.CUSTOMER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20, nullable = false)
+    @Builder.Default
+    private lk.ijse.etechbackend.enumiration.Status status = lk.ijse.etechbackend.enumiration.Status.ACTIVE;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_branch_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_users_branch"))
     private Branch assignedBranch;

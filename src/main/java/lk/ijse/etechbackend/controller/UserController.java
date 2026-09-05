@@ -79,6 +79,27 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @GetMapping("/roles")
+    public ResponseEntity<List<String>> getRoles() {
+        log.info("REST: Fetching all system user roles");
+        return ResponseEntity.ok(userService.getRoles());
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+    public ResponseEntity<UserDTO> changeUserStatus(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> statusMap) {
+        String status = statusMap.get("status");
+        log.info("REST: Changing status of user ID {} to {} by {}", id, status, userDetails.getUsername());
+        UserDTO statusReq = UserDTO.builder()
+                .status(status != null ? lk.ijse.etechbackend.enumiration.Status.valueOf(status.toUpperCase()) : null)
+                .build();
+        UserDTO updatedUser = userService.updateUserStatus(userDetails.getUsername(), id, statusReq);
+        return ResponseEntity.ok(updatedUser);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
     public ResponseEntity<ApiResponse> deleteUser(

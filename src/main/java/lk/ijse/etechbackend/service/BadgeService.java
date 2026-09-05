@@ -31,4 +31,6 @@ public interface BadgeService {
     void deleteBadge(String id);
 
     void permanentDelete(String id);
+
+    lk.ijse.etechbackend.dto.badgedto.BadgeAutoAssignResultDTO autoAssignBadges();
 }

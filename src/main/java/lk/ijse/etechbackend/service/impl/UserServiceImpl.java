@@ -286,6 +286,35 @@ public class UserServiceImpl implements UserService {
         log.info("User {} successfully changed their password", currentUsername);
     }
 
+    @Override
+    public List<String> getRoles() {
+        return List.of(UserRole.SUPERADMIN.name(), UserRole.ADMIN.name(), UserRole.STAFF.name(), UserRole.CUSTOMER.name());
+    }
+
+    @Override
+    @Transactional
+    public UserDTO updateUserStatus(String currentUsername, Long id, UserDTO request) {
+        User currentUser = getCurrentUserEntity(currentUsername);
+        User targetUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+
+        if (targetUser.getRole() == UserRole.SUPERADMIN) {
+            throw new BadRequestException("Superadmin account status cannot be modified");
+        }
+
+        if (currentUser.getRole() == UserRole.ADMIN && targetUser.getRole() == UserRole.ADMIN) {
+            throw new ForbiddenException("Admins cannot modify the status of other Admin accounts");
+        }
+
+        if (request.getStatus() != null) {
+            targetUser.setStatus(request.getStatus());
+        }
+
+        User saved = userRepository.save(targetUser);
+        log.info("User {} updated status of user ID {} to {}", currentUsername, id, saved.getStatus());
+        return mapToDTO(saved, true);
+    }
+
     private User getCurrentUserEntity(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Current authenticated user not found: " + username));
@@ -298,6 +327,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .status(user.getStatus())
                 .assignedBranch(user.getAssignedBranch() != null ? user.getAssignedBranch().getId() : null)
                 .canManage(canManage)
                 .createdAt(user.getCreatedAt())

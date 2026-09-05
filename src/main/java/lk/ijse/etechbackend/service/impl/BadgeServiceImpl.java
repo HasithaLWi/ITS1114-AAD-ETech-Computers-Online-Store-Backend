@@ -28,6 +28,7 @@ public class BadgeServiceImpl implements BadgeService {
 
     private final BadgeRepository badgeRepository;
     private final ProductRepository productRepository;
+    private final lk.ijse.etechbackend.repository.ProductBehaviorHistoryRepository behaviorHistoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -259,6 +260,81 @@ public class BadgeServiceImpl implements BadgeService {
 
         badgeRepository.delete(badge);
         log.info("Permanently deleted badge with ID: {}", id);
+    }
+
+    @Override
+    public lk.ijse.etechbackend.dto.badgedto.BadgeAutoAssignResultDTO autoAssignBadges() {
+        log.info("Executing automated rules engine for badge assignments");
+        List<Product> products = productRepository.findAll();
+        List<lk.ijse.etechbackend.dto.badgedto.BadgeChangeDTO> changes = new java.util.ArrayList<>();
+        int evaluatedCount = 0;
+        int assignedCount = 0;
+
+        Badge topRatedBadge = badgeRepository.findBySlug("toprated").orElse(null);
+        Badge bestsellerBadge = badgeRepository.findBySlug("bestseller").orElse(null);
+
+        for (Product product : products) {
+            if (product.getProductStatus() == Status.DELETED) continue;
+            evaluatedCount++;
+
+            Badge currentBadge = product.getBadge();
+            String oldBadgeName = currentBadge != null ? currentBadge.getName() : "None";
+            Badge newBadge = null;
+            String reason = null;
+
+            // Don't override Hot Deal system badges automatically
+            if (currentBadge != null && "hotdeal".equalsIgnoreCase(currentBadge.getSlug())) {
+                continue;
+            }
+
+            if (product.getRating() != null && product.getRating().compareTo(java.math.BigDecimal.valueOf(4.8)) >= 0
+                    && product.getReviewsCount() != null && product.getReviewsCount() >= 10 && topRatedBadge != null) {
+                newBadge = topRatedBadge;
+                reason = "Reached " + product.getReviewsCount() + " reviews with " + product.getRating() + " star rating";
+            } else if (product.getReviewsCount() != null && product.getReviewsCount() >= 50 && bestsellerBadge != null) {
+                newBadge = bestsellerBadge;
+                reason = "High sales / order volume with " + product.getReviewsCount() + "+ reviews";
+            }
+
+            if (newBadge != null && (currentBadge == null || !currentBadge.getId().equals(newBadge.getId()))) {
+                product.setBadge(newBadge);
+                productRepository.save(product);
+                assignedCount++;
+
+                changes.add(lk.ijse.etechbackend.dto.badgedto.BadgeChangeDTO.builder()
+                        .productId(product.getId())
+                        .productName(product.getName())
+                        .oldBadge(oldBadgeName)
+                        .newBadge(newBadge.getName())
+                        .reason(reason)
+                        .build());
+
+                // Log audit behavior history
+                try {
+                    String eventId = "pbe-" + java.time.Instant.now().getEpochSecond() + "-" + (int)(Math.random() * 900 + 100);
+                    lk.ijse.etechbackend.entity.ProductBehaviorHistory history = lk.ijse.etechbackend.entity.ProductBehaviorHistory.builder()
+                            .id(eventId)
+                            .product(product)
+                            .productName(product.getName())
+                            .eventType(lk.ijse.etechbackend.enumiration.ProductBehaviorEventType.BADGE_AUTO_ASSIGNED)
+                            .previousValue(oldBadgeName)
+                            .newValue(newBadge.getName())
+                            .triggerReason(reason)
+                            .actor(lk.ijse.etechbackend.enumiration.ProductBehaviorActor.SYSTEM_AUTO_RULE)
+                            .build();
+                    behaviorHistoryRepository.save(history);
+                } catch (Exception e) {
+                    log.warn("Could not write behavior history log: {}", e.getMessage());
+                }
+            }
+        }
+
+        log.info("Automated rules engine evaluated {} products, assigned {} badges", evaluatedCount, assignedCount);
+        return lk.ijse.etechbackend.dto.badgedto.BadgeAutoAssignResultDTO.builder()
+                .evaluatedCount(evaluatedCount)
+                .assignedCount(assignedCount)
+                .changes(changes)
+                .build();
     }
 
     private BadgeResponseDTO toResponseDTO(Badge badge) {
