@@ -26,11 +26,9 @@ public interface NewsletterSubscriberRepository extends JpaRepository<Newsletter
 
     @Query("SELECT s FROM NewsletterSubscriber s WHERE " +
             "(:status IS NULL OR s.status = :status) AND " +
-            "(:source IS NULL OR s.source = :source) AND " +
             "(:search IS NULL OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(COALESCE(s.name, '')) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<NewsletterSubscriber> filterSubscribers(
             @Param("search") String search,
             @Param("status") SubscriberStatus status,
-            @Param("source") SubscriberSource source,
             Pageable pageable);
 }

@@ -19,6 +19,4 @@ public class SubscriberRequestDTO {
 
     private String name;
     private SubscriberStatus status;
-    private SubscriberSource source;
-    private List<String> tags;
 }

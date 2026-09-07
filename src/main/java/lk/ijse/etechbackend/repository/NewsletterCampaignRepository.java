@@ -12,10 +12,4 @@ import java.util.List;
 public interface NewsletterCampaignRepository extends JpaRepository<NewsletterCampaign, String> {
 
     List<NewsletterCampaign> findAllByOrderBySentAtDesc();
-
-    @Query("SELECT COALESCE(AVG(c.openRate), 0) FROM NewsletterCampaign c")
-    BigDecimal calculateAverageOpenRate();
-
-    @Query("SELECT COALESCE(AVG(c.clickRate), 0) FROM NewsletterCampaign c")
-    BigDecimal calculateAverageClickRate();
 }

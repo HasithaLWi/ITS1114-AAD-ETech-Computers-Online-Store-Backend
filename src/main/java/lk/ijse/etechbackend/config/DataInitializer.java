@@ -695,74 +695,66 @@ public class DataInitializer implements CommandLineRunner {
                     .lastUpdated("January 2026")
                     .build();
             lp1.addPolicySection(PolicySections.builder()
-                    .id("terms-of-service-3")
-                    .sectionTitle("Shipping & Delivery")
-                    .sectionContent("We offer nationwide delivery with tracking. Estimated delivery times vary based on location and product availability.")
-                    .legalPolicy(lp1)
-                    .build());
-            lp1.addPolicySection(PolicySections.builder()
-                    .id("terms-of-service-2")
+                    .id("terms-of-service-1")
                     .sectionTitle("Order Fulfillment & Pricing")
                     .sectionContent("All hardware prices are listed in Sri Lankan Rupees (LKR) with applicable VAT included. Orders are subject to stock validation and branch warehouse confirmation.")
                     .legalPolicy(lp1)
                     .build());
+            lp1.addPolicySection(PolicySections.builder()
+                    .id("terms-of-service-2")
+                    .sectionTitle("Shipping & Delivery")
+                    .sectionContent("We offer nationwide delivery with tracking. Estimated delivery times vary based on location and product availability.")
+                    .legalPolicy(lp1)
+                    .build());
+
+            LegalPolicy lp2 = LegalPolicy.builder()
+                    .id("warranty-guarantee")
+                    .title("Guarantee & Warranty Terms")
+                    .subtitle("Official distributor manufacturer warranty policies, RMA claims process, replacement procedures, and SLA details.")
+                    .lastUpdated("January 2026")
+                    .build();
+            lp2.addPolicySection(PolicySections.builder()
+                    .id("warranty-guarantee-1")
+                    .sectionTitle("Manufacturer Warranty Coverage")
+                    .sectionContent("All laptops, GPUs, motherboards, and monitors are backed by authentic manufacturer warranties ranging from 2 to 3 years.")
+                    .legalPolicy(lp2)
+                    .build());
+            lp2.addPolicySection(PolicySections.builder()
+                    .id("warranty-guarantee-2")
+                    .sectionTitle("RMA Return Protocols")
+                    .sectionContent("Hardware claims can be submitted at any of our regional branch hubs across Colombo, Galle, Matara, or Kandy for priority diagnosis.")
+                    .legalPolicy(lp2)
+                    .build());
+
+            LegalPolicy lp3 = LegalPolicy.builder()
+                    .id("privacy-policy")
+                    .title("Privacy Policy & Data Security")
+                    .subtitle("User data security, cookie consent, tracking regulations, and GDPR/local privacy policy compliance.")
+                    .lastUpdated("January 2026")
+                    .build();
+
+            lp3.addPolicySection(PolicySections.builder()
+                    .id("privacy-policy-1")
+                    .sectionTitle("Information Collection")
+                    .sectionContent("We securely collect user account details, shipping addresses, and transaction audit logs strictly to provide exceptional e-commerce experiences.")
+                    .legalPolicy(lp3)
+                    .build());
+
+            lp3.getPolicySections().add(PolicySections.builder()
+                    .id("privacy-policy-2")
+                    .sectionTitle("Data Protection Standards")
+                    .sectionContent("Customer records and authentication credentials are encrypted using industry-standard BCrypt and TLS 1.3 algorithms.")
+                    .legalPolicy(lp3)
+                    .build());
+
 
             List<LegalPolicy> policies = List.of(
-                    LegalPolicy.builder()
-                            .id("terms-of-service")
-                            .title("Terms of Service")
-                            .subtitle("Store terms, purchase agreements, order conditions, and customer service level agreements.")
-                            .lastUpdated("January 2026")
-                            .policySections(policySectionRepository.saveAll(List.of(
-                                    PolicySections.builder()
-                                            .id("terms-of-service-1")
-                                            .sectionTitle("Acceptance of Terms")
-                                            .sectionContent("By accessing ETech Computers, you agree to comply with our purchasing policies, payment protocols, and electronic communication guidelines.")
-                                            .build(),
-                                    PolicySections.builder()
-                                            .id("terms-of-service-2")
-                                            .sectionTitle("Order Fulfillment & Pricing")
-                                            .sectionContent("All hardware prices are listed in Sri Lankan Rupees (LKR) with applicable VAT included. Orders are subject to stock validation and branch warehouse confirmation.")
-                                            .build()
-                            )))
-                            .build(),
-                    LegalPolicy.builder()
-                            .id("privacy-policy")
-                            .title("Privacy Policy & Data Security")
-                            .subtitle("User data security, cookie consent, tracking regulations, and GDPR/local privacy policy compliance.")
-                            .lastUpdated("January 2026")
-                            .policySections(policySectionRepository.saveAll(List.of(
-                                    PolicySections.builder()
-                                            .id("privacy-policy-1")
-                                            .sectionTitle("Information Collection")
-                                            .sectionContent("We securely collect user account details, shipping addresses, and transaction audit logs strictly to provide exceptional e-commerce experiences.")
-                                            .build(),
-                                    PolicySections.builder()
-                                            .id("privacy-policy-2")
-                                            .sectionTitle("Data Protection Standards")
-                                            .sectionContent("Customer records and authentication credentials are encrypted using industry-standard BCrypt and TLS 1.3 algorithms.")
-                                            .build()
-                            )))
-                            .build(),
-                    LegalPolicy.builder()
-                            .id("warranty-guarantee")
-                            .title("Guarantee & Warranty Terms")
-                            .subtitle("Official distributor manufacturer warranty policies, RMA claims process, replacement procedures, and SLA details.")
-                            .lastUpdated("January 2026")
-                            .policySections(policySectionRepository.saveAll(List.of(
-                                    PolicySections.builder()
-                                            .id("warranty-guarantee-1")
-                                            .sectionTitle("Manufacturer Warranty Coverage")
-                                            .sectionContent("All laptops, GPUs, motherboards, and monitors are backed by authentic manufacturer warranties ranging from 2 to 3 years.")
-                                            .build(),
-                                    PolicySections.builder()
-                                            .id("warranty-guarantee-2")
-                                            .sectionTitle("RMA Return Protocols")
-                                            .sectionContent("Hardware claims can be submitted at any of our regional branch hubs across Colombo, Galle, Matara, or Kandy for priority diagnosis.")
-                                            .build()
-                            )))
-                            .build()
+                    lp1,
+                    lp2,
+                    lp3
             );
+
+
             legalPolicyRepository.saveAll(policies);
             log.info("Successfully seeded {} legal policies!", policies.size());
         }
@@ -848,15 +840,11 @@ public class DataInitializer implements CommandLineRunner {
                             .email("john.gamer@gmail.com")
                             .name("John Gamer")
                             .status(SubscriberStatus.SUBSCRIBED)
-                            .source(SubscriberSource.STOREFRONT_BANNER)
-                            .tags(List.of("gamers", "hardware"))
                             .build(),
                     NewsletterSubscriber.builder()
                             .email("saman.tech@sltnet.lk")
                             .name("Saman Perera")
                             .status(SubscriberStatus.SUBSCRIBED)
-                            .source(SubscriberSource.DEALS_PAGE)
-                            .tags(List.of("promotions", "workstations"))
                             .build()
             );
             newsletterSubscriberRepository.saveAll(subscribers);

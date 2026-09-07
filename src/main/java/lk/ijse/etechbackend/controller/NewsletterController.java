@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -30,14 +31,13 @@ public class NewsletterController {
     public ResponseEntity<CommonResponse> getAllSubscribers(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) SubscriberStatus status,
-            @RequestParam(required = false) SubscriberSource source,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
-        log.info("REST: Fetching subscribers with status filter: {}, source: {}", status, source);
+        log.info("REST: Fetching subscribers with status filter: {}", status);
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
                 .message("Subscribers retrieved successfully")
-                .body(newsletterService.getSubscribers(search, status, source, page, size))
+                .body(newsletterService.getSubscribers(search, status, page, size))
                 .build());
     }
 
@@ -66,7 +66,7 @@ public class NewsletterController {
     }
 
     @PostMapping(value = "/unsubscribe", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CommonResponse> unsubscribe(@Valid @RequestBody UnsubscribeRequestDTO request) {
+    public ResponseEntity<CommonResponse> unsubscribe(@RequestBody SubscriberDTO request) {
         log.info("REST: Unsubscribing - {}", request.getEmail());
         newsletterService.unsubscribe(request.getEmail());
         return ResponseEntity.ok(CommonResponse.builder()
@@ -79,9 +79,8 @@ public class NewsletterController {
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
     public ResponseEntity<CommonResponse> updateSubscriberStatus(
             @PathVariable Long id,
-            @RequestBody Map<String, String> statusUpdate) {
-        String statusStr = statusUpdate.get("status");
-        SubscriberStatus status = statusStr != null ? SubscriberStatus.valueOf(statusStr.toUpperCase()) : null;
+            @RequestParam String status) {
+
         log.info("REST: Updating subscriber ID {} status to {}", id, status);
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
@@ -92,8 +91,7 @@ public class NewsletterController {
 
     @PutMapping(value = "/subscribers/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
-    public ResponseEntity<CommonResponse> updateSubscriber(@PathVariable Long id,
-                                                           @Valid @RequestBody SubscriberRequestDTO request) {
+    public ResponseEntity<CommonResponse> updateSubscriber(@PathVariable Long id,@RequestBody SubscriberRequestDTO request) {
         log.info("REST: Updating subscriber ID {}", id);
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
@@ -115,23 +113,23 @@ public class NewsletterController {
 
     @PatchMapping(value = "/subscribers/bulk-status", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
-    public ResponseEntity<CommonResponse> bulkUpdateStatus(@Valid @RequestBody BulkStatusRequestDTO request) {
-        log.info("REST: Bulk updating status to {} for {} subscribers", request.getStatus(), request.getIds().size());
+    public ResponseEntity<CommonResponse> bulkUpdateStatus(@RequestBody List<Long> request, @RequestParam String status) {
+        log.info("REST: Bulk updating status for {} subscribers", request.size());
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
                 .message("Bulk status updated successfully")
-                .body(newsletterService.bulkUpdateStatus(request.getIds(), request.getStatus()))
+                .body(newsletterService.bulkUpdateStatus(request, status))
                 .build());
     }
 
     @DeleteMapping(value = "/subscribers/bulk-delete", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
-    public ResponseEntity<CommonResponse> bulkDelete(@Valid @RequestBody BulkDeleteRequestDTO request) {
-        log.info("REST: Bulk deleting {} subscribers", request.getIds().size());
+    public ResponseEntity<CommonResponse> bulkDelete(@RequestBody List<Long> request) {
+        log.info("REST: Bulk deleting {} subscribers", request.size());
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
                 .message("Bulk subscribers deleted successfully")
-                .body(newsletterService.bulkDelete(request.getIds()))
+                .body(newsletterService.bulkDelete(request))
                 .build());
     }
 
@@ -154,17 +152,6 @@ public class NewsletterController {
                 .status(HttpStatus.OK.value())
                 .message("Campaign history retrieved successfully")
                 .body(newsletterService.getAllCampaigns())
-                .build());
-    }
-
-    @GetMapping(value = "/analytics", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
-    public ResponseEntity<CommonResponse> getNewsletterAnalytics() {
-        log.info("REST: Fetching newsletter analytics");
-        return ResponseEntity.ok(CommonResponse.builder()
-                .status(HttpStatus.OK.value())
-                .message("Newsletter analytics retrieved successfully")
-                .body(newsletterService.getAnalytics())
                 .build());
     }
 }

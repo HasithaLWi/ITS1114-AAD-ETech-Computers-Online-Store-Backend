@@ -28,7 +28,6 @@ public class BadgeServiceImpl implements BadgeService {
 
     private final BadgeRepository badgeRepository;
     private final ProductRepository productRepository;
-    private final lk.ijse.etechbackend.repository.ProductBehaviorHistoryRepository behaviorHistoryRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -309,23 +308,6 @@ public class BadgeServiceImpl implements BadgeService {
                         .reason(reason)
                         .build());
 
-                // Log audit behavior history
-                try {
-                    String eventId = "pbe-" + java.time.Instant.now().getEpochSecond() + "-" + (int)(Math.random() * 900 + 100);
-                    lk.ijse.etechbackend.entity.ProductBehaviorHistory history = lk.ijse.etechbackend.entity.ProductBehaviorHistory.builder()
-                            .id(eventId)
-                            .product(product)
-                            .productName(product.getName())
-                            .eventType(lk.ijse.etechbackend.enumiration.ProductBehaviorEventType.BADGE_AUTO_ASSIGNED)
-                            .previousValue(oldBadgeName)
-                            .newValue(newBadge.getName())
-                            .triggerReason(reason)
-                            .actor(lk.ijse.etechbackend.enumiration.ProductBehaviorActor.SYSTEM_AUTO_RULE)
-                            .build();
-                    behaviorHistoryRepository.save(history);
-                } catch (Exception e) {
-                    log.warn("Could not write behavior history log: {}", e.getMessage());
-                }
             }
         }
 

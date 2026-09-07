@@ -18,8 +18,6 @@ public class SubscriberDTO {
     private String email;
     private String name;
     private SubscriberStatus status;
-    private SubscriberSource source;
-    private List<String> tags;
     private LocalDateTime subscribedAt;
     private LocalDateTime unsubscribedAt;
     private LocalDateTime lastCampaignSentAt;

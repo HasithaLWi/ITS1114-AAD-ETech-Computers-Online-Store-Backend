@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 public interface NewsletterService {
-    Map<String, Object> getSubscribers(String search, SubscriberStatus status, SubscriberSource source, int page, int size);
+    Map<String, Object> getSubscribers(String search, SubscriberStatus status, int page, int size);
     SubscriberDTO getSubscriberById(Long id);
     SubscriberDTO subscribe(SubscriberRequestDTO request, String ipAddress);
     void unsubscribe(String email);
-    SubscriberDTO updateStatus(Long id, SubscriberStatus status);
+    SubscriberDTO updateStatus(Long id, String status);
     SubscriberDTO updateSubscriber(Long id, SubscriberRequestDTO request);
     void deleteSubscriber(Long id);
-    int bulkUpdateStatus(List<Long> ids, SubscriberStatus status);
+    int bulkUpdateStatus(List<Long> ids, String status);
     int bulkDelete(List<Long> ids);
     CampaignDTO sendCampaign(CampaignSendRequestDTO request);
     List<CampaignDTO> getAllCampaigns();
-    NewsletterAnalyticsDTO getAnalytics();
 }

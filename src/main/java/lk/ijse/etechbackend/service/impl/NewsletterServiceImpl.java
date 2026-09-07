@@ -35,15 +35,14 @@ public class NewsletterServiceImpl implements NewsletterService {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getSubscribers(String search, SubscriberStatus status, SubscriberSource source, int page, int size) {
-        log.info("Fetching subscribers list - search: {}, status: {}, source: {}, page: {}, size: {}",
-                search, status, source, page, size);
+    public Map<String, Object> getSubscribers(String search, SubscriberStatus status, int page, int size) {
+        log.info("Fetching subscribers list - search: {}, status: {}, page: {}, size: {}",
+                search, status, page, size);
 
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "subscribedAt"));
         Page<NewsletterSubscriber> subscriberPage = subscriberRepository.filterSubscribers(
                 search != null && !search.isBlank() ? search.trim() : null,
                 status,
-                source,
                 pageRequest
         );
 
@@ -51,14 +50,12 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
 
-        NewsletterAnalyticsDTO analytics = getAnalytics();
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("total", subscriberPage.getTotalElements());
         result.put("totalPages", subscriberPage.getTotalPages());
         result.put("currentPage", subscriberPage.getNumber());
-        result.put("analytics", analytics);
         result.put("data", dataList);
 
         return result;
@@ -88,22 +85,12 @@ public class NewsletterServiceImpl implements NewsletterService {
             if (request.getName() != null && !request.getName().isBlank()) {
                 subscriber.setName(request.getName().trim());
             }
-            if (request.getSource() != null) {
-                subscriber.setSource(request.getSource());
-            }
-            if (request.getTags() != null && !request.getTags().isEmpty()) {
-                Set<String> tagsSet = new HashSet<>(subscriber.getTags());
-                tagsSet.addAll(request.getTags());
-                subscriber.setTags(new ArrayList<>(tagsSet));
-            }
             subscriber.setIpAddress(ipAddress != null ? ipAddress : "127.0.0.1");
         } else {
             subscriber = NewsletterSubscriber.builder()
                     .email(email)
                     .name(request.getName() != null ? request.getName().trim() : null)
                     .status(SubscriberStatus.SUBSCRIBED)
-                    .source(request.getSource() != null ? request.getSource() : SubscriberSource.STOREFRONT_BANNER)
-                    .tags(request.getTags() != null ? request.getTags() : new ArrayList<>())
                     .ipAddress(ipAddress != null ? ipAddress : "127.0.0.1")
                     .build();
         }
@@ -129,16 +116,22 @@ public class NewsletterServiceImpl implements NewsletterService {
     }
 
     @Override
-    public SubscriberDTO updateStatus(Long id, SubscriberStatus status) {
+    public SubscriberDTO updateStatus(Long id, String status) {
         log.info("Updating subscriber ID {} status to: {}", id, status);
         NewsletterSubscriber subscriber = subscriberRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscriber not found with ID: " + id));
 
-        subscriber.setStatus(status);
-        if (status == SubscriberStatus.UNSUBSCRIBED) {
-            subscriber.setUnsubscribedAt(LocalDateTime.now());
-        } else {
-            subscriber.setUnsubscribedAt(null);
+        try{
+            SubscriberStatus newStatus = SubscriberStatus.valueOf(status.toUpperCase());
+            subscriber.setStatus(newStatus);
+            if (newStatus == SubscriberStatus.UNSUBSCRIBED) {
+                subscriber.setUnsubscribedAt(LocalDateTime.now());
+            } else {
+                subscriber.setUnsubscribedAt(null);
+            }
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid status value: {}", status);
+            throw new IllegalArgumentException("Invalid status value: " + status);
         }
 
         NewsletterSubscriber saved = subscriberRepository.save(subscriber);
@@ -156,12 +149,6 @@ public class NewsletterServiceImpl implements NewsletterService {
         }
         if (request.getName() != null) {
             subscriber.setName(request.getName().trim());
-        }
-        if (request.getSource() != null) {
-            subscriber.setSource(request.getSource());
-        }
-        if (request.getTags() != null) {
-            subscriber.setTags(request.getTags());
         }
         if (request.getStatus() != null) {
             subscriber.setStatus(request.getStatus());
@@ -181,12 +168,25 @@ public class NewsletterServiceImpl implements NewsletterService {
     }
 
     @Override
-    public int bulkUpdateStatus(List<Long> ids, SubscriberStatus status) {
+    public int bulkUpdateStatus(List<Long> ids, String status) {
         log.info("Bulk updating status to {} for IDs: {}", status, ids);
         List<NewsletterSubscriber> subscribers = subscriberRepository.findAllById(ids);
+        SubscriberStatus newStatus;
+        try{
+            newStatus = SubscriberStatus.valueOf(status.toUpperCase());
+            log.info("New status: {}", newStatus);
+
+        }catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status value: " + status);
+        }
+
+        if(newStatus == null){
+            throw new IllegalArgumentException("Invalid status value: " + status);
+        }
+
         for (NewsletterSubscriber s : subscribers) {
-            s.setStatus(status);
-            if (status == SubscriberStatus.UNSUBSCRIBED) {
+            s.setStatus(newStatus);
+            if (newStatus == SubscriberStatus.UNSUBSCRIBED) {
                 s.setUnsubscribedAt(LocalDateTime.now());
             } else {
                 s.setUnsubscribedAt(null);
@@ -222,8 +222,6 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .contentHtml(request.getContentHtml())
                 .recipientsCount(recipientCount)
                 .status("DELIVERED")
-                .openRate(BigDecimal.valueOf(55.0 + Math.random() * 20.0).setScale(1, RoundingMode.HALF_UP))
-                .clickRate(BigDecimal.valueOf(20.0 + Math.random() * 15.0).setScale(1, RoundingMode.HALF_UP))
                 .authorName(request.getAuthorName() != null ? request.getAuthorName() : "Admin Team")
                 .build();
 
@@ -248,41 +246,7 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public NewsletterAnalyticsDTO getAnalytics() {
-        long total = subscriberRepository.count();
-        long active = subscriberRepository.countByStatus(SubscriberStatus.SUBSCRIBED);
-        long unsubscribed = subscriberRepository.countByStatus(SubscriberStatus.UNSUBSCRIBED);
 
-        BigDecimal activeRate = total > 0
-                ? BigDecimal.valueOf(active * 100.0 / total).setScale(1, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
-
-        long totalCampaigns = campaignRepository.count();
-        BigDecimal avgOpenRate = campaignRepository.calculateAverageOpenRate().setScale(1, RoundingMode.HALF_UP);
-        BigDecimal avgClickRate = campaignRepository.calculateAverageClickRate().setScale(1, RoundingMode.HALF_UP);
-
-        Map<String, Long> distribution = new HashMap<>();
-        for (SubscriberSource source : SubscriberSource.values()) {
-            distribution.put(source.name(), 0L);
-        }
-        List<NewsletterSubscriber> allSubs = subscriberRepository.findAll();
-        for (NewsletterSubscriber s : allSubs) {
-            distribution.put(s.getSource().name(), distribution.getOrDefault(s.getSource().name(), 0L) + 1);
-        }
-
-        return NewsletterAnalyticsDTO.builder()
-                .totalSubscribers(total)
-                .activeSubscribers(active)
-                .unsubscribedCount(unsubscribed)
-                .activeRate(activeRate)
-                .totalCampaigns(totalCampaigns)
-                .avgOpenRate(avgOpenRate)
-                .avgClickRate(avgClickRate)
-                .channelDistribution(distribution)
-                .build();
-    }
 
     private SubscriberDTO toDTO(NewsletterSubscriber s) {
         return SubscriberDTO.builder()
@@ -290,8 +254,6 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .email(s.getEmail())
                 .name(s.getName())
                 .status(s.getStatus())
-                .source(s.getSource())
-                .tags(s.getTags())
                 .subscribedAt(s.getSubscribedAt())
                 .unsubscribedAt(s.getUnsubscribedAt())
                 .lastCampaignSentAt(s.getLastCampaignSentAt())
@@ -309,8 +271,6 @@ public class NewsletterServiceImpl implements NewsletterService {
                 .sentAt(c.getSentAt())
                 .recipientsCount(c.getRecipientsCount())
                 .status(c.getStatus())
-                .openRate(c.getOpenRate())
-                .clickRate(c.getClickRate())
                 .authorName(c.getAuthorName())
                 .build();
     }

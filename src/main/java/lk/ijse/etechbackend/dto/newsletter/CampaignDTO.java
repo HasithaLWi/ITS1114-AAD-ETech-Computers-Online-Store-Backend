@@ -21,7 +21,5 @@ public class CampaignDTO {
     private LocalDateTime sentAt;
     private Integer recipientsCount;
     private String status;
-    private BigDecimal openRate;
-    private BigDecimal clickRate;
     private String authorName;
 }

@@ -52,13 +52,6 @@ public class NewsletterCampaign {
     @Builder.Default
     private String status = "DELIVERED";
 
-    @Column(name = "open_rate", precision = 4, scale = 1)
-    @Builder.Default
-    private BigDecimal openRate = BigDecimal.ZERO;
-
-    @Column(name = "click_rate", precision = 4, scale = 1)
-    @Builder.Default
-    private BigDecimal clickRate = BigDecimal.ZERO;
 
     @Column(name = "author_name", length = 100, nullable = false)
     @Builder.Default

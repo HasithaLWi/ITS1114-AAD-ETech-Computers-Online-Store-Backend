@@ -1,8 +1,6 @@
 package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
-import lk.ijse.etechbackend.converter.JsonListConverter;
-import lk.ijse.etechbackend.enumiration.SubscriberSource;
 import lk.ijse.etechbackend.enumiration.SubscriberStatus;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +14,6 @@ import java.util.List;
 @Table(name = "newsletter_subscribers", indexes = {
         @Index(name = "idx_subscribers_email", columnList = "email"),
         @Index(name = "idx_subscribers_status", columnList = "status"),
-        @Index(name = "idx_subscribers_source", columnList = "source")
 })
 @Getter
 @Setter
@@ -39,16 +36,6 @@ public class NewsletterSubscriber {
     @Column(name = "status", length = 30, nullable = false)
     @Builder.Default
     private SubscriberStatus status = SubscriberStatus.SUBSCRIBED;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "source", length = 50, nullable = false)
-    @Builder.Default
-    private SubscriberSource source = SubscriberSource.STOREFRONT_BANNER;
-
-    @Convert(converter = JsonListConverter.class)
-    @Column(name = "tags_json", columnDefinition = "JSON")
-    @Builder.Default
-    private List<String> tags = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "subscribed_at", updatable = false)
