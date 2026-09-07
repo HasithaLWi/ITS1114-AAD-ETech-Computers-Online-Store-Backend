@@ -7,7 +7,11 @@ import java.util.List;
 
 public interface UserService {
 
-    List<UserDTO> getUsers(String currentUsername, UserRole role, String branch, String search);
+    List<UserDTO> getAllEmployees(String currentUsername, UserRole role, String branch, String search);
+
+    List<UserDTO> getAllUsers(String currentUsername, UserRole roleFilter, String branchFilter, String search);
+
+    List<UserDTO> getAllCustomers(String currentUsername, String search);
 
     UserDTO getUserById(String currentUsername, Long id);
 

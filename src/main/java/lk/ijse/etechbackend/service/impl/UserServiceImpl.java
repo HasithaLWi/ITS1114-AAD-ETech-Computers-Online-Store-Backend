@@ -3,6 +3,7 @@ package lk.ijse.etechbackend.service.impl;
 import lk.ijse.etechbackend.dto.*;
 import lk.ijse.etechbackend.entity.Branch;
 import lk.ijse.etechbackend.entity.User;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.enumiration.UserRole;
 import lk.ijse.etechbackend.exception.BadRequestException;
 import lk.ijse.etechbackend.exception.ForbiddenException;
@@ -12,6 +13,7 @@ import lk.ijse.etechbackend.repository.UserRepository;
 import lk.ijse.etechbackend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,23 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public List<UserDTO> getUsers(String currentUsername, UserRole roleFilter, String branchFilter, String search) {
+    public List<UserDTO> getAllEmployees(String currentUsername, UserRole roleFilter, String branchFilter,
+            String search) {
+        User currentUser = getCurrentUserEntity(currentUsername);
+        UserRole currentRole = currentUser.getRole();
+
+        if (currentRole != UserRole.SUPERADMIN && currentRole != UserRole.ADMIN) {
+            throw new ForbiddenException("Access denied: Only SUPERADMIN and ADMIN can view the user directory");
+        }
+
+        boolean excludeSuperAdmin = (currentRole == UserRole.ADMIN);
+        List<User> users = userRepository.filterEmployeeUsers(excludeSuperAdmin, roleFilter, branchFilter, search);
+
+        return getUserDTOS(currentUser, currentRole, users);
+    }
+
+    @Override
+    public List<UserDTO> getAllUsers(String currentUsername, UserRole roleFilter, String branchFilter, String search) {
         User currentUser = getCurrentUserEntity(currentUsername);
         UserRole currentRole = currentUser.getRole();
 
@@ -41,12 +59,33 @@ public class UserServiceImpl implements UserService {
         boolean excludeSuperAdmin = (currentRole == UserRole.ADMIN);
         List<User> users = userRepository.filterUsers(excludeSuperAdmin, roleFilter, branchFilter, search);
 
+        return getUserDTOS(currentUser, currentRole, users);
+    }
+
+    @Override
+    public List<UserDTO> getAllCustomers(String currentUsername, String search) {
+        User currentUser = getCurrentUserEntity(currentUsername);
+        UserRole currentRole = currentUser.getRole();
+
+        if (currentRole != UserRole.SUPERADMIN && currentRole != UserRole.ADMIN) {
+            throw new ForbiddenException("Access denied: Only SUPERADMIN and ADMIN can view the user directory");
+        }
+
+        boolean excludeSuperAdmin = (currentRole == UserRole.ADMIN);
+        List<User> users = userRepository.filterCustomerUsers(search);
+
+        return getUserDTOS(currentUser, currentRole, users);
+    }
+
+    @NonNull
+    private List<UserDTO> getUserDTOS(User currentUser, UserRole currentRole, List<User> users) {
         return users.stream()
                 .map(user -> {
                     boolean canManage;
                     if (currentRole == UserRole.SUPERADMIN) {
                         // Superadmin can manage everyone except the superadmin account itself
-                        canManage = (user.getRole() != UserRole.SUPERADMIN || Objects.equals(user.getId(), currentUser.getId()));
+                        canManage = (user.getRole() != UserRole.SUPERADMIN
+                                || Objects.equals(user.getId(), currentUser.getId()));
                     } else {
                         // Admin can manage STAFF and CUSTOMER, but NOT other Admins or Superadmin
                         canManage = (user.getRole() == UserRole.STAFF || user.getRole() == UserRole.CUSTOMER);
@@ -62,7 +101,8 @@ public class UserServiceImpl implements UserService {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        // If requesting user is Admin and target is Superadmin, keep Superadmin invisible
+        // If requesting user is Admin and target is Superadmin, keep Superadmin
+        // invisible
         if (currentUser.getRole() == UserRole.ADMIN && targetUser.getRole() == UserRole.SUPERADMIN) {
             throw new ResourceNotFoundException("User not found with id: " + id);
         }
@@ -106,7 +146,8 @@ public class UserServiceImpl implements UserService {
         Branch assignedBranch = null;
         if (request.getAssignedBranch() != null && !request.getAssignedBranch().isBlank()) {
             assignedBranch = branchRepository.findById(request.getAssignedBranch())
-                    .orElseThrow(() -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
+                    .orElseThrow(
+                            () -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
         }
 
         User user = User.builder()
@@ -163,7 +204,8 @@ public class UserServiceImpl implements UserService {
         Branch assignedBranch = null;
         if (request.getAssignedBranch() != null && !request.getAssignedBranch().isBlank()) {
             assignedBranch = branchRepository.findById(request.getAssignedBranch())
-                    .orElseThrow(() -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
+                    .orElseThrow(
+                            () -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
         }
 
         targetUser.setName(request.getName());
@@ -210,7 +252,8 @@ public class UserServiceImpl implements UserService {
         Branch assignedBranch = null;
         if (request.getAssignedBranch() != null && !request.getAssignedBranch().isBlank()) {
             assignedBranch = branchRepository.findById(request.getAssignedBranch())
-                    .orElseThrow(() -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
+                    .orElseThrow(
+                            () -> new BadRequestException("Branch not found with id: " + request.getAssignedBranch()));
         }
 
         targetUser.setRole(request.getRole());
@@ -239,7 +282,9 @@ public class UserServiceImpl implements UserService {
             throw new ForbiddenException("Admins are not authorized to delete other Admin accounts");
         }
 
-        userRepository.delete(targetUser);
+        targetUser.setStatus(Status.DELETED);
+
+        userRepository.save(targetUser);
         log.info("Deleted user ID: {} by {}", id, currentUsername);
     }
 
@@ -288,7 +333,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<String> getRoles() {
-        return List.of(UserRole.SUPERADMIN.name(), UserRole.ADMIN.name(), UserRole.STAFF.name(), UserRole.CUSTOMER.name());
+        return List.of(UserRole.SUPERADMIN.name(), UserRole.ADMIN.name(), UserRole.STAFF.name(),
+                UserRole.CUSTOMER.name());
     }
 
     @Override
