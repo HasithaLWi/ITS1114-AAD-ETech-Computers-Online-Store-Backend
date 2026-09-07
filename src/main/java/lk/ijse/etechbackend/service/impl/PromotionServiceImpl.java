@@ -3,6 +3,7 @@ package lk.ijse.etechbackend.service.impl;
 import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
 import lk.ijse.etechbackend.dto.promotion.*;
 import lk.ijse.etechbackend.entity.*;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.exception.BadRequestException;
 import lk.ijse.etechbackend.exception.ResourceNotFoundException;
 import lk.ijse.etechbackend.repository.*;
@@ -290,7 +291,12 @@ public class PromotionServiceImpl implements PromotionService {
         ProductResponseDTO prodDTO = null;
         if (d.getProduct() != null) {
             try {
-                prodDTO = productService.getProductById(d.getProduct().getId());
+                Optional<Product> productOpt = productRepository.findById(d.getProduct().getId());
+                if(productOpt.isEmpty()) {
+                    log.warn("Product with ID {} not found for hot deal ID {}", d.getProduct().getId(), d.getId());
+                } else if (productOpt.get().getProductStatus() == Status.ACTIVE) {
+                    prodDTO = productService.getProductById(d.getProduct().getId());
+                }
             } catch (Exception e) {
                 log.warn("Could not load full ProductResponseDTO for hot deal product ID {}: {}", d.getProduct().getId(), e.getMessage());
             }
