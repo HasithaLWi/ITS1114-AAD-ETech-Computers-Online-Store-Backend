@@ -54,7 +54,7 @@ public class Category {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private Status categoryStatus =  Status.ACTIVE;
+    private Status categoryStatus = Status.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

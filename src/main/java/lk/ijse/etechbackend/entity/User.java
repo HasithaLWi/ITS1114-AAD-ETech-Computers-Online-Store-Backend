@@ -1,6 +1,7 @@
 package lk.ijse.etechbackend.entity;
 
 import jakarta.persistence.*;
+import lk.ijse.etechbackend.enumiration.Status;
 import lk.ijse.etechbackend.enumiration.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,7 +44,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
     @Builder.Default
-    private lk.ijse.etechbackend.enumiration.Status status = lk.ijse.etechbackend.enumiration.Status.ACTIVE;
+    private Status status = Status.ACTIVE;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_branch_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_users_branch"))

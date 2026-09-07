@@ -40,19 +40,18 @@ public class ProductServiceImpl implements ProductService {
 
     private final int MAX_GALLERY_IMAGES = 5;
 
-
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponseDTO> getFilteredProducts(String category,
-                                                        String brand,
-                                                        String search,
-                                                        BigDecimal minPrice,
-                                                        BigDecimal maxPrice,
-                                                        String badge,
-                                                        int page,
-                                                        int size,
-                                                        String sortBy,
-                                                        String sortDirection) {
+            String brand,
+            String search,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            String badge,
+            int page,
+            int size,
+            String sortBy,
+            String sortDirection) {
 
         Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
         String sortProperty = (sortBy != null && !sortBy.isBlank()) ? sortBy : "id";
@@ -65,13 +64,11 @@ public class ProductServiceImpl implements ProductService {
                 minPrice,
                 maxPrice,
                 badge != null && !badge.isBlank() ? badge.trim().toLowerCase() : null,
-                pageable
-        );
+                pageable);
 
         log.info("Fetched {} products with filters - category: {}, brand: {}, search: {}, minPrice: {}, " +
-                        "maxPrice: {}, badge: {}, page: {}, size: {}", productPage.getNumberOfElements(),
+                "maxPrice: {}, badge: {}, page: {}, size: {}", productPage.getNumberOfElements(),
                 category, brand, search, minPrice, maxPrice, badge, page, size);
-
 
         return productPage.getContent().stream()
                 .map(this::mapToResponseDTO)
@@ -99,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Fetching product by ID: {}", id);
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
-        if(product.getProductStatus() == Status.DELETED) {
+        if (product.getProductStatus() == Status.DELETED) {
             throw new ResourceNotFoundException("Product not found with ID: " + id);
         }
         return mapToResponseDTO(product);
@@ -111,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
         log.debug("Fetching product by SKU: {}", sku);
         Product product = productRepository.findBySku(sku)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with SKU: " + sku));
-        if(product.getProductStatus() == Status.DELETED) {
+        if (product.getProductStatus() == Status.DELETED) {
             throw new ResourceNotFoundException("Product not found with SKU: " + sku);
         }
         return mapToResponseDTO(product);
@@ -158,7 +155,6 @@ public class ProductServiceImpl implements ProductService {
             throw new ResourceNotFoundException("Badge not found with ID: " + request.getBadgeId());
         }
         Badge badge = badgeOpt.orElse(null);
-
 
         Product product = Product.builder()
                 .name(request.getName().trim())
@@ -240,7 +236,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
 
         if (productRepository.existsBySkuAndIdNot(request.getSku(), id)) {
-            throw new BadRequestException("Product SKU '" + request.getSku() + "' is already in use by another product");
+            throw new BadRequestException(
+                    "Product SKU '" + request.getSku() + "' is already in use by another product");
         }
 
         Optional<Category> categoryOpt = categoryRepository.findById(request.getCategoryId());
@@ -273,9 +270,10 @@ public class ProductServiceImpl implements ProductService {
         product.setWarranty(request.getWarranty() != null ? request.getWarranty().trim() : "No Warranty");
         product.setAlertEnabled(request.getAlertEnabled() != null ? request.getAlertEnabled() : true);
         product.setLowStockMargin(request.getLowStockMargin() != null ? request.getLowStockMargin() : 5);
-        product.setProductStatus(request.getProductStatus() != null ? request.getProductStatus() : product.getProductStatus());
-//        List<Specs> existingSpecs = product.getSpecs();
-//        specsRepository.deleteAll(existingSpecs);
+        product.setProductStatus(
+                request.getProductStatus() != null ? request.getProductStatus() : product.getProductStatus());
+        // List<Specs> existingSpecs = product.getSpecs();
+        // specsRepository.deleteAll(existingSpecs);
 
         if (request.getSpecs() != null && !request.getSpecs().isEmpty()) {
             product.getSpecs().clear();
