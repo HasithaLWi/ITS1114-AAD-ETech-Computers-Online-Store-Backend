@@ -43,6 +43,10 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+
+                        // Check is Server is Online
+                        .requestMatchers(HttpMethod.POST, "/api/v1/test/ping").permitAll()
+
                         // Auth & System Roles endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/users/roles").permitAll()
