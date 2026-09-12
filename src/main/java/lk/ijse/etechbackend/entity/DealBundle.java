@@ -66,6 +66,10 @@ public class DealBundle {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "is_free_shipping")
+    @Builder.Default
+    private Boolean isFreeShipping = false;
+
     @OneToMany(mappedBy = "bundle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("displayOrder ASC")
     @Builder.Default

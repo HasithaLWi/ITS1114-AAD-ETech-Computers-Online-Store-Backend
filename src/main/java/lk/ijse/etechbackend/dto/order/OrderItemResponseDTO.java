@@ -19,4 +19,5 @@ public class OrderItemResponseDTO {
     private Integer quantity;
     private BigDecimal totalPrice;
     private String image;
+    private Long bundleId;
 }

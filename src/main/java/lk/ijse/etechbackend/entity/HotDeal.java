@@ -53,6 +53,10 @@ public class HotDeal {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "is_free_shipping")
+    @Builder.Default
+    private Boolean isFreeShipping = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

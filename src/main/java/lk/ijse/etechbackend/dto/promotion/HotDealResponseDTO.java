@@ -23,5 +23,6 @@ public class HotDealResponseDTO {
     private Integer durationSeconds;
     private LocalDateTime timerUpdatedAt;
     private Boolean isActive;
+    private Boolean isFreeShipping;
     private LocalDateTime createdAt;
 }

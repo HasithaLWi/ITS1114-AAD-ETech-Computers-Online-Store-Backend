@@ -30,6 +30,7 @@ public class DealBundleResponseDTO {
     private Integer durationSeconds;
     private LocalDateTime timerUpdatedAt;
     private Boolean isActive;
+    private Boolean isFreeShipping;
     private List<BundleItemDTO> componentsBreakdown;
     private LocalDateTime createdAt;
 }
