@@ -13,4 +13,5 @@ public interface OrderService {
     OrderResponseDTO getOrderByCode(String orderCode);
     OrderResponseDTO createOrder(String currentUsernameOrNull, OrderCreateRequestDTO request);
     OrderResponseDTO updateOrderStatus(Long orderId, OrderStatusUpdateDTO request);
+    OrderResponseDTO updateOrderStatus(String idOrCode, OrderStatusUpdateDTO request);
 }

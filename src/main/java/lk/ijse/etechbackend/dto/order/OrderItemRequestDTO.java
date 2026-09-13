@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,4 +17,7 @@ public class OrderItemRequestDTO {
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    private BigDecimal unitPrice;
+    private Long bundleId;
 }

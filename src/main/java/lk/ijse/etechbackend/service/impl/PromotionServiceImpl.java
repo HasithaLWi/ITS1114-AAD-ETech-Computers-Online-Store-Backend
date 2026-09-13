@@ -83,6 +83,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .durationSeconds(request.getDurationSeconds() != null ? request.getDurationSeconds() : 86400)
                 .timerUpdatedAt(LocalDateTime.now())
                 .isActive(request.getIsActive() != null ? request.getIsActive() : true)
+                .isFreeShipping(request.getIsFreeShipping() != null ? request.getIsFreeShipping() : false)
                 .build();
 
         HotDeal saved = hotDealRepository.save(hotDeal);
@@ -104,6 +105,7 @@ public class PromotionServiceImpl implements PromotionService {
             hotDeal.setTimerUpdatedAt(LocalDateTime.now());
         }
         if (request.getIsActive() != null) hotDeal.setIsActive(request.getIsActive());
+        if (request.getIsFreeShipping() != null) hotDeal.setIsFreeShipping(request.getIsFreeShipping());
 
         HotDeal saved = hotDealRepository.save(hotDeal);
         return toHotDealDTO(saved);
@@ -216,6 +218,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .durationSeconds(request.getDurationSeconds() != null ? request.getDurationSeconds() : 86400)
                 .timerUpdatedAt(LocalDateTime.now())
                 .isActive(request.getIsActive() != null ? request.getIsActive() : true)
+                .isFreeShipping(request.getIsFreeShipping() != null ? request.getIsFreeShipping() : false)
                 .build();
 
         if (request.getBundleItems() != null) {
@@ -256,6 +259,7 @@ public class PromotionServiceImpl implements PromotionService {
             bundle.setTimerUpdatedAt(LocalDateTime.now());
         }
         if (request.getIsActive() != null) bundle.setIsActive(request.getIsActive());
+        if (request.getIsFreeShipping() != null) bundle.setIsFreeShipping(request.getIsFreeShipping());
 
         if (request.getBundleItems() != null) {
             bundle.getBundleItems().clear();
@@ -313,6 +317,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .durationSeconds(d.getDurationSeconds())
                 .timerUpdatedAt(d.getTimerUpdatedAt())
                 .isActive(d.getIsActive())
+                .isFreeShipping(d.getIsFreeShipping() != null ? d.getIsFreeShipping() : false)
                 .createdAt(d.getCreatedAt())
                 .build();
     }
@@ -412,6 +417,7 @@ public class PromotionServiceImpl implements PromotionService {
                 .durationSeconds(b.getDurationSeconds())
                 .timerUpdatedAt(b.getTimerUpdatedAt())
                 .isActive(b.getIsActive())
+                .isFreeShipping(b.getIsFreeShipping() != null ? b.getIsFreeShipping() : false)
                 .componentsBreakdown(itemsList)
                 .createdAt(b.getCreatedAt())
                 .build();

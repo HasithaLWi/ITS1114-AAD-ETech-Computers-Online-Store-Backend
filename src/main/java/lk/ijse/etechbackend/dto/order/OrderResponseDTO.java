@@ -25,6 +25,8 @@ public class OrderResponseDTO {
     private String fulfillmentBranchId;
     private String fulfillmentBranchName;
     private BigDecimal distanceKm;
+    private BigDecimal deliveryLatitude;
+    private BigDecimal deliveryLongitude;
     private BigDecimal subtotal;
     private BigDecimal shippingFee;
     private BigDecimal tax;

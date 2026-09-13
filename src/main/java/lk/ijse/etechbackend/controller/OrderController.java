@@ -5,6 +5,7 @@ import lk.ijse.etechbackend.dto.CommonResponse;
 import lk.ijse.etechbackend.dto.order.OrderCreateRequestDTO;
 import lk.ijse.etechbackend.dto.order.OrderStatusUpdateDTO;
 import lk.ijse.etechbackend.enumiration.OrderStatus;
+import lk.ijse.etechbackend.exception.BadRequestException;
 import lk.ijse.etechbackend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,15 +72,22 @@ public class OrderController {
                 .build());
     }
 
-    @PatchMapping(value = "/{id}/status", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF')")
-    public ResponseEntity<CommonResponse> updateOrderStatus(@PathVariable Long id,
-                                                            @Valid @RequestBody OrderStatusUpdateDTO request) {
-        log.info("REST: Updating status for order ID {} to {}", id, request.getStatus());
+    @PatchMapping(value = "/{idOrCode}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN', 'STAFF', 'CUSTOMER')")
+    public ResponseEntity<CommonResponse> updateOrderStatus(
+            @PathVariable String idOrCode,
+            @RequestBody(required = false) OrderStatusUpdateDTO request,
+            @RequestParam(required = false) OrderStatus status) {
+        OrderStatus newStatus = (request != null && request.getStatus() != null) ? request.getStatus() : status;
+        if (newStatus == null) {
+            throw new BadRequestException("Order status is required");
+        }
+        OrderStatusUpdateDTO updateDTO = new OrderStatusUpdateDTO(newStatus);
+        log.info("REST: Updating status for order {} to {}", idOrCode, newStatus);
         return ResponseEntity.ok(CommonResponse.builder()
                 .status(HttpStatus.OK.value())
                 .message("Order status updated successfully")
-                .body(orderService.updateOrderStatus(id, request))
+                .body(orderService.updateOrderStatus(idOrCode, updateDTO))
                 .build());
     }
 }

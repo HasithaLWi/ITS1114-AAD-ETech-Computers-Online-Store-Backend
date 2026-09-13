@@ -42,4 +42,7 @@ public class OrderItem {
 
     @Column(name = "total_price", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalPrice;
+
+    @Column(name = "bundle_id")
+    private Long bundleId;
 }

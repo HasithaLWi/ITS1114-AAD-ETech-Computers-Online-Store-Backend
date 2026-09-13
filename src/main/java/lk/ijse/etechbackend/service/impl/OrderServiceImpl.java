@@ -32,6 +32,8 @@ public class OrderServiceImpl implements OrderService {
     private final BranchRepository branchRepository;
     private final BranchInventoryRepository branchInventoryRepository;
     private final UserRepository userRepository;
+    private final DealBundleRepository dealBundleRepository;
+    private final HotDealRepository hotDealRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -91,10 +93,12 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal distanceKm = request.getDistanceKm() != null ? request.getDistanceKm() : BigDecimal.valueOf(5.0);
         BigDecimal baseRate = branch.getBaseShippingRate() != null ? branch.getBaseShippingRate() : new BigDecimal("350.00");
         BigDecimal distanceCharge = distanceKm.multiply(BigDecimal.valueOf(15)).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal shippingFee = baseRate.add(distanceCharge).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal calculatedShippingFee = baseRate.add(distanceCharge).setScale(2, RoundingMode.HALF_UP);
 
         BigDecimal subtotal = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
+        boolean isFreeShippingPromo = false;
+        java.util.Set<Long> processedBundleIds = new java.util.HashSet<>();
 
         Order order = Order.builder()
                 .orderCode(orderCode)
@@ -106,8 +110,10 @@ public class OrderServiceImpl implements OrderService {
                 .city(request.getCity().trim())
                 .fulfillmentBranch(branch)
                 .distanceKm(distanceKm)
+                .deliveryLatitude(request.getDeliveryLatitude())
+                .deliveryLongitude(request.getDeliveryLongitude())
                 .subtotal(BigDecimal.ZERO)
-                .shippingFee(shippingFee)
+                .shippingFee(calculatedShippingFee)
                 .tax(BigDecimal.ZERO)
                 .totalAmount(BigDecimal.ZERO)
                 .status(OrderStatus.Pending)
@@ -133,7 +139,42 @@ public class OrderServiceImpl implements OrderService {
             inventory.setQuantity(inventory.getQuantity() - reqQty);
             branchInventoryRepository.save(inventory);
 
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(reqQty));
+            // Determine effective unit price:
+            BigDecimal effectiveUnitPrice = product.getPrice();
+            if (itemReq.getUnitPrice() != null && itemReq.getUnitPrice().compareTo(BigDecimal.ZERO) > 0) {
+                // If client passed a bundle-discounted unit price, honor it
+                effectiveUnitPrice = itemReq.getUnitPrice();
+            } else {
+                // Or check if product has an active hot deal
+                Optional<HotDeal> hotDealOpt = hotDealRepository.findByProductId(product.getId());
+                if (hotDealOpt.isPresent() && Boolean.TRUE.equals(hotDealOpt.get().getIsActive())) {
+                    effectiveUnitPrice = hotDealOpt.get().getPromoPrice();
+                }
+            }
+
+            // Check promotional Free Shipping eligibility:
+            if (itemReq.getBundleId() != null) {
+                Optional<DealBundle> bundleOpt = dealBundleRepository.findById(itemReq.getBundleId());
+                if (bundleOpt.isPresent()) {
+                    DealBundle bundle = bundleOpt.get();
+                    if (Boolean.TRUE.equals(bundle.getIsFreeShipping())) {
+                        isFreeShippingPromo = true;
+                    }
+                    // Increment bundle soldCount
+                    if (!processedBundleIds.contains(bundle.getId())) {
+                        processedBundleIds.add(bundle.getId());
+                        bundle.setSoldCount((bundle.getSoldCount() != null ? bundle.getSoldCount() : 0) + 1);
+                        dealBundleRepository.save(bundle);
+                    }
+                }
+            }
+
+            Optional<HotDeal> hotDealOpt = hotDealRepository.findByProductId(product.getId());
+            if (hotDealOpt.isPresent() && Boolean.TRUE.equals(hotDealOpt.get().getIsActive()) && Boolean.TRUE.equals(hotDealOpt.get().getIsFreeShipping())) {
+                isFreeShippingPromo = true;
+            }
+
+            BigDecimal itemTotal = effectiveUnitPrice.multiply(BigDecimal.valueOf(reqQty));
             subtotal = subtotal.add(itemTotal);
 
             OrderItem orderItem = OrderItem.builder()
@@ -141,22 +182,26 @@ public class OrderServiceImpl implements OrderService {
                     .product(product)
                     .productName(product.getName())
                     .productSku(product.getSku())
-                    .unitPrice(product.getPrice())
+                    .unitPrice(effectiveUnitPrice)
                     .quantity(reqQty)
                     .totalPrice(itemTotal)
+                    .bundleId(itemReq.getBundleId())
                     .build();
 
             orderItems.add(orderItem);
         }
 
-        BigDecimal totalAmount = subtotal.add(shippingFee);
+        BigDecimal finalShippingFee = isFreeShippingPromo ? BigDecimal.ZERO : calculatedShippingFee;
+        BigDecimal totalAmount = subtotal.add(finalShippingFee);
 
+        order.setShippingFee(finalShippingFee);
         order.setSubtotal(subtotal);
         order.setTotalAmount(totalAmount);
         order.setItems(orderItems);
 
         Order savedOrder = orderRepository.save(order);
-        log.info("Successfully created order code: {} (total: {})", savedOrder.getOrderCode(), savedOrder.getTotalAmount());
+        log.info("Successfully created order code: {} (total: {}, freeShipping: {})",
+                savedOrder.getOrderCode(), savedOrder.getTotalAmount(), isFreeShippingPromo);
         return toDTO(savedOrder);
     }
 
@@ -197,6 +242,27 @@ public class OrderServiceImpl implements OrderService {
         return toDTO(saved);
     }
 
+    @Override
+    public OrderResponseDTO updateOrderStatus(String idOrCode, OrderStatusUpdateDTO request) {
+        if (idOrCode == null || idOrCode.isBlank()) {
+            throw new BadRequestException("Order ID or code is required");
+        }
+        String clean = idOrCode.trim().replace("#", "");
+        Order order = null;
+        try {
+            Long id = Long.parseLong(clean);
+            order = orderRepository.findById(id).orElse(null);
+        } catch (NumberFormatException ignored) {}
+
+        if (order == null) {
+            order = orderRepository.findByOrderCode(clean)
+                    .orElseGet(() -> orderRepository.findByOrderCode(idOrCode.trim())
+                            .orElseThrow(() -> new ResourceNotFoundException("Order not found with code or ID: " + idOrCode)));
+        }
+
+        return updateOrderStatus(order.getId(), request);
+    }
+
     private OrderResponseDTO toDTO(Order o) {
         List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
         if (o.getItems() != null) {
@@ -214,6 +280,7 @@ public class OrderServiceImpl implements OrderService {
                         .quantity(item.getQuantity())
                         .totalPrice(item.getTotalPrice())
                         .image(image)
+                        .bundleId(item.getBundleId())
                         .build());
             }
         }
@@ -230,6 +297,8 @@ public class OrderServiceImpl implements OrderService {
                 .fulfillmentBranchId(o.getFulfillmentBranch() != null ? o.getFulfillmentBranch().getId() : null)
                 .fulfillmentBranchName(o.getFulfillmentBranch() != null ? o.getFulfillmentBranch().getName() : null)
                 .distanceKm(o.getDistanceKm())
+                .deliveryLatitude(o.getDeliveryLatitude())
+                .deliveryLongitude(o.getDeliveryLongitude())
                 .subtotal(o.getSubtotal())
                 .shippingFee(o.getShippingFee())
                 .tax(o.getTax())

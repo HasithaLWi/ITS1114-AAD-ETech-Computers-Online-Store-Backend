@@ -19,4 +19,5 @@ public class HotDealRequestDTO {
     private Integer discountPercent;
     private Integer durationSeconds;
     private Boolean isActive;
+    private Boolean isFreeShipping;
 }

@@ -29,5 +29,6 @@ public class DealBundleRequestDTO {
     private Integer soldCount;
     private Integer durationSeconds;
     private Boolean isActive;
+    private Boolean isFreeShipping;
     private List<BundleItemRequestDTO> bundleItems;
 }
