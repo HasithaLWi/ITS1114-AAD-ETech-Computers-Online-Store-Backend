@@ -1,5 +1,6 @@
 package lk.ijse.etechbackend.service.impl;
 
+import lk.ijse.etechbackend.dto.PageResponseDTO;
 import lk.ijse.etechbackend.dto.productsdto.ProductRequestDTO;
 import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
 import lk.ijse.etechbackend.dto.productsdto.UpdateInventory;
@@ -42,12 +43,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> getFilteredProducts(String category,
+    public PageResponseDTO<ProductResponseDTO> getFilteredProducts(String category,
             String brand,
             String search,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String badge,
+            String status,
             int page,
             int size,
             String sortBy,
@@ -57,6 +59,15 @@ public class ProductServiceImpl implements ProductService {
         String sortProperty = (sortBy != null && !sortBy.isBlank()) ? sortBy : "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty));
 
+        Status statusEnum = null;
+        if (status != null && !status.isBlank() && !"ALL".equalsIgnoreCase(status.trim())) {
+            try {
+                statusEnum = Status.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid product status filter: {}", status);
+            }
+        }
+
         Page<Product> productPage = productRepository.findProductsWithOptionalFilter(
                 category != null && !category.isBlank() ? category.trim().toLowerCase() : null,
                 brand != null && !brand.isBlank() ? brand.trim().toLowerCase() : null,
@@ -64,15 +75,18 @@ public class ProductServiceImpl implements ProductService {
                 minPrice,
                 maxPrice,
                 badge != null && !badge.isBlank() ? badge.trim().toLowerCase() : null,
+                statusEnum,
                 pageable);
 
         log.info("Fetched {} products with filters - category: {}, brand: {}, search: {}, minPrice: {}, " +
-                "maxPrice: {}, badge: {}, page: {}, size: {}", productPage.getNumberOfElements(),
-                category, brand, search, minPrice, maxPrice, badge, page, size);
+                "maxPrice: {}, badge: {}, status: {}, page: {}, size: {}", productPage.getNumberOfElements(),
+                category, brand, search, minPrice, maxPrice, badge, status, page, size);
 
-        return productPage.getContent().stream()
+        List<ProductResponseDTO> dtoList = productPage.getContent().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+
+        return PageResponseDTO.of(productPage, dtoList);
     }
 
     @Override

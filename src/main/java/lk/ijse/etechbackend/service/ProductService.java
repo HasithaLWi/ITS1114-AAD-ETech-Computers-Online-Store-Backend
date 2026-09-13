@@ -1,5 +1,6 @@
 package lk.ijse.etechbackend.service;
 
+import lk.ijse.etechbackend.dto.PageResponseDTO;
 import lk.ijse.etechbackend.dto.productsdto.ProductRequestDTO;
 import lk.ijse.etechbackend.dto.productsdto.ProductResponseDTO;
 import lk.ijse.etechbackend.dto.productsdto.UpdateInventory;
@@ -12,12 +13,13 @@ import java.util.Map;
 public interface ProductService {
 
     List<ProductResponseDTO> getAllProducts();
-    List<ProductResponseDTO> getFilteredProducts(String category,
+    PageResponseDTO<ProductResponseDTO> getFilteredProducts(String category,
                                                  String brand,
                                                  String search,
                                                  BigDecimal minPrice,
                                                  BigDecimal maxPrice,
                                                  String badge,
+                                                 String status,
                                                  int page,
                                                  int size,
                                                  String sortBy,

@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -32,6 +30,10 @@ public class DataInitializer implements CommandLineRunner {
     private final HomeDealBannerRepository homeDealBannerRepository;
     private final DealBundleRepository dealBundleRepository;
     private final NewsletterSubscriberRepository newsletterSubscriberRepository;
+    private final NewsletterCampaignRepository newsletterCampaignRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final StockTransferRepository stockTransferRepository;
     private final ProductReviewRepository productReviewRepository;
     private final PasswordEncoder passwordEncoder;
     private final PolicySectionRepository policySectionRepository;
@@ -49,6 +51,9 @@ public class DataInitializer implements CommandLineRunner {
         seedPolicies();
         seedPromotions();
         seedNewsletterSubscribers();
+        seedNewsletterCampaigns();
+        seedOrders();
+        seedStockTransfers();
         seedProductReviews();
         log.info("--- DATA INITIALIZER FINISHED! ---");
     }
@@ -64,19 +69,31 @@ public class DataInitializer implements CommandLineRunner {
                             .city("Colombo")
                             .address("450 Galle Road, Colombo 03")
                             .phone("+94 11 234 5678")
-                            .email("colombo@etech.com")
-                            .latitude(new BigDecimal("6.92710000"))
-                            .longitude(new BigDecimal("79.86120000"))
+                            .email("colombo@etechcomputers.lk")
+                            .latitude(new BigDecimal("6.89820000"))
+                            .longitude(new BigDecimal("79.85430000"))
                             .baseShippingRate(new BigDecimal("350.00"))
                             .active(true)
                             .build(),
                     Branch.builder()
+                            .id("BR-KAN")
+                            .name("Kandy Tech Hub")
+                            .city("Kandy")
+                            .address("12 Peradeniya Road, Kandy")
+                            .phone("+94 81 222 3344")
+                            .email("kandy@etechcomputers.lk")
+                            .latitude(new BigDecimal("7.29060000"))
+                            .longitude(new BigDecimal("80.63370000"))
+                            .baseShippingRate(new BigDecimal("450.00"))
+                            .active(true)
+                            .build(),
+                    Branch.builder()
                             .id("BR-GAL")
-                            .name("Galle Tech Hub")
+                            .name("Galle Coastal Branch")
                             .city("Galle")
-                            .address("12 Wakwella Road, Galle")
-                            .phone("+94 91 223 4567")
-                            .email("galle@etech.com")
+                            .address("88 Main Street, Galle Fort")
+                            .phone("+94 91 223 4455")
+                            .email("galle@etechcomputers.lk")
                             .latitude(new BigDecimal("6.05350000"))
                             .longitude(new BigDecimal("80.22100000"))
                             .baseShippingRate(new BigDecimal("450.00"))
@@ -84,32 +101,20 @@ public class DataInitializer implements CommandLineRunner {
                             .build(),
                     Branch.builder()
                             .id("BR-MAT")
-                            .name("Matara Regional Hub")
+                            .name("Matara Express Center")
                             .city("Matara")
-                            .address("88 Anagarika Dharmapala Mawatha, Matara")
-                            .phone("+94 41 222 3456")
-                            .email("matara@etech.com")
+                            .address("34 Anagarika Dharmapala Mawatha, Matara")
+                            .phone("+94 41 224 5566")
+                            .email("matara@etechcomputers.lk")
                             .latitude(new BigDecimal("5.95490000"))
                             .longitude(new BigDecimal("80.55500000"))
                             .baseShippingRate(new BigDecimal("500.00"))
-                            .active(true)
-                            .build(),
-                    Branch.builder()
-                            .id("BR-KAN")
-                            .name("Kandy Central Hub")
-                            .city("Kandy")
-                            .address("102 Dalada Veediya, Kandy")
-                            .phone("+94 81 220 1234")
-                            .email("kandy@etech.com")
-                            .latitude(new BigDecimal("7.29060000"))
-                            .longitude(new BigDecimal("80.63370000"))
-                            .baseShippingRate(new BigDecimal("450.00"))
                             .active(true)
                             .build()
             );
 
             branchRepository.saveAll(branches);
-            log.info("Successfully seeded {} branches", branches.size());
+            log.info("Successfully seeded {} branch warehouse hubs", branches.size());
         }
     }
 
@@ -170,67 +175,124 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedCategories() {
         if (categoryRepository.count() == 0) {
-            log.info("Seeding catalog categories...");
+            log.info("Seeding catalog categories with supercategory hierarchy...");
 
-            List<Category> categories = List.of(
-                    Category.builder()
-                            .id("cat-laptops")
-                            .name("Laptops & Notebooks")
-                            .slug("laptops")
-                            .icon("💻")
-                            .description("High-performance gaming, ultrabooks, and professional workstations")
-                            .featured(true)
-                            .displayOrder(1)
-                            .build(),
-                    Category.builder()
-                            .id("cat-components")
-                            .name("PC Components")
-                            .slug("components")
-                            .icon("⚙️")
-                            .description("Processors, GPUs, motherboards, RAM, power supplies, and cases")
-                            .featured(true)
-                            .displayOrder(2)
-                            .build(),
-                    Category.builder()
-                            .id("cat-peripherals")
-                            .name("Peripherals & Accessories")
-                            .slug("peripherals")
-                            .icon("🖱️")
-                            .description("Gaming mice, mechanical keyboards, audio headsets, and streaming gear")
-                            .featured(true)
-                            .displayOrder(3)
-                            .build(),
-                    Category.builder()
-                            .id("cat-monitors")
-                            .name("Monitors & Displays")
-                            .slug("monitors")
-                            .icon("🖥️")
-                            .description("High refresh rate gaming monitors, 4K OLED displays, and ultrawide panels")
-                            .featured(true)
-                            .displayOrder(4)
-                            .build(),
-                    Category.builder()
-                            .id("cat-storage")
-                            .name("Storage & Memory")
-                            .slug("storage")
-                            .icon("💾")
-                            .description("Gen4/Gen5 NVMe SSDs, high-capacity HDDs, and DDR5 RAM kits")
-                            .featured(false)
-                            .displayOrder(5)
-                            .build(),
-                    Category.builder()
-                            .id("cat-networking")
-                            .name("Networking Gear")
-                            .slug("networking")
-                            .icon("🌐")
-                            .description("Wi-Fi 7 gaming routers, mesh network systems, and Gigabit switches")
-                            .featured(false)
-                            .displayOrder(6)
-                            .build()
-            );
+            // 1. Top-Level Main Categories (Super Categories)
+            Category catSystems = Category.builder()
+                    .id("cat-systems")
+                    .name("Computers & Systems")
+                    .slug("systems")
+                    .icon("💻")
+                    .description("Gaming laptops, mobile workstations, custom desktop rigs, and all-in-one PCs")
+                    .featured(true)
+                    .displayOrder(1)
+                    .superCategory(null)
+                    .build();
 
-            categoryRepository.saveAll(categories);
-            log.info("Successfully seeded {} categories", categories.size());
+            Category catComponents = Category.builder()
+                    .id("cat-components")
+                    .name("PC Components")
+                    .slug("components")
+                    .icon("⚙️")
+                    .description("Processors, graphics cards, motherboards, RAM, power supplies, and cases")
+                    .featured(true)
+                    .displayOrder(2)
+                    .superCategory(null)
+                    .build();
+
+            Category catPeripherals = Category.builder()
+                    .id("cat-peripherals")
+                    .name("Peripherals & Accessories")
+                    .slug("peripherals")
+                    .icon("🖱️")
+                    .description("Gaming mice, mechanical keyboards, audio headsets, and streaming gear")
+                    .featured(true)
+                    .displayOrder(3)
+                    .superCategory(null)
+                    .build();
+
+            categoryRepository.saveAll(List.of(catSystems, catComponents, catPeripherals));
+
+            // 2. Subcategories with Parent Supercategories
+            Category catLaptops = Category.builder()
+                    .id("cat-laptops")
+                    .name("Laptops & Notebooks")
+                    .slug("laptops")
+                    .icon("💻")
+                    .description("High-performance gaming laptops, ultrabooks, and professional creator workstations")
+                    .featured(true)
+                    .displayOrder(1)
+                    .superCategory(catSystems)
+                    .build();
+
+            Category catDesktops = Category.builder()
+                    .id("cat-desktops")
+                    .name("Custom Gaming Desktops")
+                    .slug("desktops")
+                    .icon("🖥️")
+                    .description("Handcrafted enthusiast desktop rigs, liquid-cooled powerhouses, and workstations")
+                    .featured(true)
+                    .displayOrder(2)
+                    .superCategory(catSystems)
+                    .build();
+
+            Category catStorage = Category.builder()
+                    .id("cat-storage")
+                    .name("Storage & Memory")
+                    .slug("storage")
+                    .icon("💾")
+                    .description("Gen4/Gen5 NVMe SSDs, high-capacity HDDs, and DDR5 RAM kits")
+                    .featured(false)
+                    .displayOrder(1)
+                    .superCategory(catComponents)
+                    .build();
+
+            Category catHardware = Category.builder()
+                    .id("cat-hardware")
+                    .name("Core PC Parts")
+                    .slug("hardware")
+                    .icon("🔧")
+                    .description("CPUs, enthusiast GPUs, thermal pastes, and motherboards")
+                    .featured(true)
+                    .displayOrder(2)
+                    .superCategory(catComponents)
+                    .build();
+
+            Category catMonitors = Category.builder()
+                    .id("cat-monitors")
+                    .name("Monitors & Displays")
+                    .slug("monitors")
+                    .icon("🖥️")
+                    .description("High refresh rate gaming monitors, 4K OLED displays, and ultrawide panels")
+                    .featured(true)
+                    .displayOrder(1)
+                    .superCategory(catPeripherals)
+                    .build();
+
+            Category catKeyboards = Category.builder()
+                    .id("cat-keyboards")
+                    .name("Keyboards & Mice")
+                    .slug("keyboards")
+                    .icon("⌨️")
+                    .description("Mechanical keyboards, analog switches, and ultra-lightweight esports mice")
+                    .featured(true)
+                    .displayOrder(2)
+                    .superCategory(catPeripherals)
+                    .build();
+
+            Category catNetworking = Category.builder()
+                    .id("cat-networking")
+                    .name("Networking Gear")
+                    .slug("networking")
+                    .icon("🌐")
+                    .description("Wi-Fi 7 gaming routers, mesh network systems, and Gigabit switches")
+                    .featured(false)
+                    .displayOrder(3)
+                    .superCategory(catPeripherals)
+                    .build();
+
+            categoryRepository.saveAll(List.of(catLaptops, catDesktops, catStorage, catHardware, catMonitors, catKeyboards, catNetworking));
+            log.info("Successfully seeded catalog categories with supercategory hierarchy!");
         }
     }
 
@@ -304,7 +366,7 @@ public class DataInitializer implements CommandLineRunner {
                             .foundedYear("1981")
                             .websiteUrl("https://www.logitechg.com")
                             .tagline("Defy Logic")
-                            .description("Premier gaming mice, keyboards, simulation wheels, and professional audio gear.")
+                            .description("Industry standard in esports mice, mechanical keyboards, and LIGHTSPEED technology.")
                             .featured(true)
                             .status(Status.ACTIVE)
                             .displayOrder(5)
@@ -314,25 +376,137 @@ public class DataInitializer implements CommandLineRunner {
                             .name("Razer")
                             .slug("razer")
                             .logoUrl("https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200&auto=format&fit=crop&q=80")
-                            .country("USA")
+                            .country("USA / Singapore")
                             .foundedYear("2005")
                             .websiteUrl("https://www.razer.com")
                             .tagline("For Gamers. By Gamers.")
-                            .description("Global gaming lifestyle brand renowned for Chroma RGB peripherals and Blade laptops.")
+                            .description("Global lifestyle brand for gamers featuring Chroma RGB and precision analog switches.")
                             .featured(true)
                             .status(Status.ACTIVE)
                             .displayOrder(6)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-nvidia")
+                            .name("NVIDIA")
+                            .slug("nvidia")
+                            .logoUrl("https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=200&auto=format&fit=crop&q=80")
+                            .country("USA")
+                            .foundedYear("1993")
+                            .websiteUrl("https://www.nvidia.com")
+                            .tagline("The Way It's Meant to be Played")
+                            .description("World pioneer of GPUs, real-time ray tracing, and DLSS AI neural rendering.")
+                            .featured(true)
+                            .status(Status.ACTIVE)
+                            .displayOrder(7)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-amd")
+                            .name("AMD")
+                            .slug("amd")
+                            .logoUrl("https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=200&auto=format&fit=crop&q=80")
+                            .country("USA")
+                            .foundedYear("1969")
+                            .websiteUrl("https://www.amd.com")
+                            .tagline("Together We Advance")
+                            .description("Innovator in Ryzen 3D V-Cache processors and Radeon RDNA graphics architecture.")
+                            .featured(true)
+                            .status(Status.ACTIVE)
+                            .displayOrder(8)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-samsung")
+                            .name("Samsung")
+                            .slug("samsung")
+                            .logoUrl("https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&auto=format&fit=crop&q=80")
+                            .country("South Korea")
+                            .foundedYear("1938")
+                            .websiteUrl("https://www.samsung.com")
+                            .tagline("Inspire the World, Create the Future")
+                            .description("World leader in V-NAND NVMe solid-state drives, DDR5 memory, and QD-OLED displays.")
+                            .featured(true)
+                            .status(Status.ACTIVE)
+                            .displayOrder(9)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-gigabyte")
+                            .name("Gigabyte")
+                            .slug("gigabyte")
+                            .logoUrl("https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=200&auto=format&fit=crop&q=80")
+                            .country("Taiwan")
+                            .foundedYear("1986")
+                            .websiteUrl("https://www.gigabyte.com")
+                            .tagline("Upgrade Your Life")
+                            .description("Premier manufacturer of AORUS gaming motherboards, GPUs, and high-spec systems.")
+                            .featured(false)
+                            .status(Status.ACTIVE)
+                            .displayOrder(10)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-apple")
+                            .name("Apple")
+                            .slug("apple")
+                            .logoUrl("https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=200&auto=format&fit=crop&q=80")
+                            .country("USA")
+                            .foundedYear("1976")
+                            .websiteUrl("https://www.apple.com")
+                            .tagline("Think Different")
+                            .description("Creator of revolutionary M-series silicon Macs, Retina displays, and creative workflows.")
+                            .featured(false)
+                            .status(Status.ACTIVE)
+                            .displayOrder(11)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-hyperx")
+                            .name("HyperX")
+                            .slug("hyperx")
+                            .logoUrl("https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=200&auto=format&fit=crop&q=80")
+                            .country("USA")
+                            .foundedYear("2002")
+                            .websiteUrl("https://www.hyperx.com")
+                            .tagline("We're All Gamers")
+                            .description("Industry renowned Cloud gaming headsets, QuadCast microphones, and memory solutions.")
+                            .featured(false)
+                            .status(Status.ACTIVE)
+                            .displayOrder(12)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-lianli")
+                            .name("Lian Li")
+                            .slug("lianli")
+                            .logoUrl("https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=200&auto=format&fit=crop&q=80")
+                            .country("Taiwan")
+                            .foundedYear("1983")
+                            .websiteUrl("https://www.lian-li.com")
+                            .tagline("Feel the Difference")
+                            .description("Master craftsmanship in brushed aluminum PC cases, UNI FAN modular cooling, and streamers.")
+                            .featured(false)
+                            .status(Status.ACTIVE)
+                            .displayOrder(13)
+                            .build(),
+                    Brand.builder()
+                            .id("brd-nzxt")
+                            .name("NZXT")
+                            .slug("nzxt")
+                            .logoUrl("https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200&auto=format&fit=crop&q=80")
+                            .country("USA")
+                            .foundedYear("2004")
+                            .websiteUrl("https://www.nzxt.com")
+                            .tagline("Make Building Extraordinary")
+                            .description("Distinctive minimalist chassis designs, Kraken AIO liquid coolers, and CAM control software.")
+                            .featured(false)
+                            .status(Status.ACTIVE)
+                            .displayOrder(14)
                             .build()
             );
 
             brandRepository.saveAll(brands);
-            log.info("Successfully seeded {} brands", brands.size());
+            log.info("Successfully seeded {} manufacturer partner brands", brands.size());
         }
     }
 
     private void seedBadges() {
         if (badgeRepository.count() == 0) {
-            log.info("Seeding system badges and rules...");
+            log.info("Seeding storefront product badges and automated rules...");
 
             List<Badge> badges = List.of(
                     Badge.builder()
@@ -464,7 +638,6 @@ public class DataInitializer implements CommandLineRunner {
                     .description("Extreme desktop replacement with mechanical Cherry MX keyboard and vapor chamber cooling.")
                     .fullDescription("MSI Titan 18 HX combines extreme desktop-grade computing with unmatched portability. Driven by Intel 14th Gen Core i9-14900HX, RTX 4090 GPU, 18-inch 4K 120Hz Mini-LED display, and world's first seamless RGB haptic touchpad.")
                     .sku("ETC-LAP-002")
-
                     .warranty("2-Year International Warranty")
                     .alertEnabled(true)
                     .lowStockMargin(2)
@@ -473,14 +646,14 @@ public class DataInitializer implements CommandLineRunner {
             p2.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
             p2.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1593642634367-d91a135587b5?w=800&auto=format&fit=crop&q=80").displayOrder(1).build());
 
-            p2.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p2.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p2.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p2.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
-            p2.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+            p2.addSpec(Specs.builder().name("Processor").description("Intel Core i9-14900HX (24 Cores, 32 Threads, 5.8GHz)").build());
+            p2.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W OverBoost)").build());
+            p2.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz (Upgradable to 192GB)").build());
+            p2.addSpec(Specs.builder().name("Storage").description("2TB PCIe Gen5 NVMe M.2 SSD").build());
+            p2.addSpec(Specs.builder().name("Display").description("18.0\" UHD+ (3840x2400) 120Hz 100% DCI-P3 Mini-LED").build());
 
-            p2.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p2.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p2.addFeature(Features.builder().featureName("Cherry MX Ultra Low Profile Mechanical Keyboard").build());
+            p2.addFeature(Features.builder().featureName("Vapor Chamber Cooler with Dual 3D Blade Fans").build());
 
             if (colombo != null) p2.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(4).build());
             if (galle != null) p2.addBranchInventory(BranchInventory.builder().branch(galle).quantity(2).build());
@@ -506,14 +679,14 @@ public class DataInitializer implements CommandLineRunner {
 
             p3.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
 
-            p3.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p3.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p3.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p3.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
+            p3.addSpec(Specs.builder().name("Architecture").description("Ada Lovelace (AD103-275)").build());
+            p3.addSpec(Specs.builder().name("CUDA Cores").description("8,448 CUDA Cores").build());
+            p3.addSpec(Specs.builder().name("Memory").description("16GB GDDR6X (256-bit bus, 21 Gbps)").build());
+            p3.addSpec(Specs.builder().name("Boost Clock").description("2640 MHz (OC Mode) / 2610 MHz (Default)").build());
+            p3.addSpec(Specs.builder().name("Power Requirement").description("750W Recommended PSU (16-pin 12VHPWR)").build());
 
-
-            p3.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p3.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p3.addFeature(Features.builder().featureName("Axial-tech Fans with Dual Ball Bearings").build());
+            p3.addFeature(Features.builder().featureName("Vented Aluminum Exoskeleton Backplate").build());
 
             if (colombo != null) p3.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(12).build());
             if (galle != null) p3.addBranchInventory(BranchInventory.builder().branch(galle).quantity(6).build());
@@ -540,14 +713,14 @@ public class DataInitializer implements CommandLineRunner {
 
             p4.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
 
-            p4.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p4.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p4.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p4.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
-            p4.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+            p4.addSpec(Specs.builder().name("Memory Type").description("DDR5 UDIMM Desktop Memory").build());
+            p4.addSpec(Specs.builder().name("Capacity").description("64GB Kit (2 x 32GB)").build());
+            p4.addSpec(Specs.builder().name("Tested Speed").description("6600 MT/s (PC5-52800)").build());
+            p4.addSpec(Specs.builder().name("Tested Latency").description("CL32-39-39-76 (1.40V)").build());
+            p4.addSpec(Specs.builder().name("Performance Profile").description("Intel XMP 3.0 & AMD EXPO Ready").build());
 
-            p4.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p4.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p4.addFeature(Features.builder().featureName("Patented Dual-Path DHX Cooling System").build());
+            p4.addFeature(Features.builder().featureName("11 Addressable Ultra-Bright CAPELLIX LEDs").build());
 
             if (colombo != null) p4.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(15).build());
             if (galle != null) p4.addBranchInventory(BranchInventory.builder().branch(galle).quantity(8).build());
@@ -574,14 +747,14 @@ public class DataInitializer implements CommandLineRunner {
 
             p5.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
 
-            p5.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p5.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p5.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p5.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
-            p5.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+            p5.addSpec(Specs.builder().name("Sensor").description("HERO 2 Optical Sensor (100 - 32,000 DPI, 500+ IPS)").build());
+            p5.addSpec(Specs.builder().name("Weight").description("60 grams Ultra-Lightweight").build());
+            p5.addSpec(Specs.builder().name("Polling Rate").description("4,000Hz (0.25ms) Wireless via LIGHTSPEED").build());
+            p5.addSpec(Specs.builder().name("Switches").description("LIGHTFORCE Hybrid Optical-Mechanical").build());
+            p5.addSpec(Specs.builder().name("Battery Life").description("Up to 95 Hours Continuous Motion").build());
 
-            p5.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p5.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p5.addFeature(Features.builder().featureName("Zero-Additive PTFE Glides for Ultra-Low Friction").build());
+            p5.addFeature(Features.builder().featureName("POWERPLAY Wireless Charging Compatible").build());
 
             if (colombo != null) p5.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(25).build());
             if (galle != null) p5.addBranchInventory(BranchInventory.builder().branch(galle).quantity(14).build());
@@ -608,14 +781,14 @@ public class DataInitializer implements CommandLineRunner {
 
             p6.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
 
-            p6.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p6.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p6.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p6.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
-            p6.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+            p6.addSpec(Specs.builder().name("Switch Type").description("Razer Gen-2 Analog Optical Switches").build());
+            p6.addSpec(Specs.builder().name("Actuation Range").description("Adjustable from 0.1mm to 4.0mm").build());
+            p6.addSpec(Specs.builder().name("Rapid Trigger").description("Instant Keystroke Reset from 0.1mm sensitivity").build());
+            p6.addSpec(Specs.builder().name("Keycaps").description("Textured Doubleshot PBT Keycaps").build());
+            p6.addSpec(Specs.builder().name("Top Plate").description("5052 Brushed Aluminum Top Plate").build());
 
-            p6.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p6.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p6.addFeature(Features.builder().featureName("Multi-Function Digital Dial with 3 Dedicated Control Buttons").build());
+            p6.addFeature(Features.builder().featureName("Magnetic Firm Leatherette Ergonomic Wrist Rest").build());
 
             if (colombo != null) p6.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(18).build());
             if (galle != null) p6.addBranchInventory(BranchInventory.builder().branch(galle).quantity(9).build());
@@ -640,26 +813,182 @@ public class DataInitializer implements CommandLineRunner {
                     .lowStockMargin(3)
                     .build();
 
-            p7.addImage(ProductImage.builder()
-                    .imageUrl("https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80")
-                    .displayOrder(0)
-                    .build());
+            p7.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
 
-            p7.addSpec(Specs.builder().name("Processor").description("Intel Core Ultra 9 185H (24 Cores, up to 5.8GHz)").build());
-            p7.addSpec(Specs.builder().name("Graphics").description("NVIDIA GeForce RTX 4090 16GB GDDR6 (175W)").build());
-            p7.addSpec(Specs.builder().name("Memory").description("64GB DDR5 5600MHz Dual-Channel").build());
-            p7.addSpec(Specs.builder().name("Storage").description("4TB NVMe PCIe 4.0 SSD (2TB x 2 RAID 0)").build());
-            p7.addSpec(Specs.builder().name("Display").description("18.0\" QHD+ (2560x1600) 240Hz Mini-LED HDR 1100").build());
+            p7.addSpec(Specs.builder().name("Panel Type").description("31.5\" 4K (3840x2160) 3rd Gen QD-OLED").build());
+            p7.addSpec(Specs.builder().name("Refresh Rate").description("240Hz Ultra-Fluid Refresh Rate").build());
+            p7.addSpec(Specs.builder().name("Response Time").description("0.03ms (GtG) Lightning Response").build());
+            p7.addSpec(Specs.builder().name("Color / HDR").description("99% DCI-P3, Delta E < 2, 1000 nits Peak HDR").build());
+            p7.addSpec(Specs.builder().name("Connectivity").description("DP 1.4 (DSC), HDMI 2.1 x2, USB-C 90W PD, KVM Switch").build());
 
-            p7.addFeature(Features.builder().featureName("Conductonaut Extreme Liquid Metal on CPU & GPU").build());
-            p7.addFeature(Features.builder().featureName("Tri-Fan Cooling with Anti-Dust Technology").build());
+            p7.addFeature(Features.builder().featureName("Custom Graphene Heatsink & Clear Pixel Edge Tech").build());
+            p7.addFeature(Features.builder().featureName("Uniform Brightness Mode to prevent ABL fluctuations").build());
 
             if (colombo != null) p7.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(5).build());
             if (galle != null) p7.addBranchInventory(BranchInventory.builder().branch(galle).quantity(2).build());
             if (kandy != null) p7.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(2).build());
 
-            productRepository.saveAll(List.of(p1, p2, p3, p4, p5, p6, p7));
-            log.info("Successfully seeded 7 sample products with branch inventories and gallery images!");
+            // 8. Samsung 990 PRO 2TB NVMe SSD
+            Product p8 = Product.builder()
+                    .name("Samsung 990 PRO 2TB NVMe M.2 PCIe Gen 4.0 SSD")
+                    .category(categoryRepository.findBySlug("storage").orElse(null))
+                    .brand(brandRepository.findBySlug("samsung").orElse(null))
+                    .badge(badgeRepository.findBySlug("bestseller").orElse(null))
+                    .price(new BigDecimal("68000.00"))
+                    .originalPrice(new BigDecimal("74000.00"))
+                    .rating(new BigDecimal("4.9"))
+                    .reviewsCount(64)
+                    .description("Blazing fast 7,450 MB/s sequential read performance engineered for hardcore gaming and heavy workloads.")
+                    .fullDescription("Samsung 990 PRO reaches near max performance of PCIe 4.0. Featuring in-house Pascal controller, nickel coating for heat control, and intelligent thermal management.")
+                    .sku("ETC-SSD-001")
+                    .warranty("5-Year Official Limited Warranty")
+                    .alertEnabled(true)
+                    .lowStockMargin(8)
+                    .build();
+
+            p8.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p8.addSpec(Specs.builder().name("Interface").description("PCIe Gen 4.0 x4, NVMe 2.0").build());
+            p8.addSpec(Specs.builder().name("Form Factor").description("M.2 (2280) Single-Sided").build());
+            p8.addSpec(Specs.builder().name("Sequential Read").description("Up to 7,450 MB/s").build());
+            p8.addSpec(Specs.builder().name("Sequential Write").description("Up to 6,900 MB/s").build());
+            p8.addSpec(Specs.builder().name("Endurance").description("1200 TBW (Terabytes Written)").build());
+
+            p8.addFeature(Features.builder().featureName("Samsung Dynamic Thermal Guard & Magician Software").build());
+
+            if (colombo != null) p8.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(20).build());
+            if (galle != null) p8.addBranchInventory(BranchInventory.builder().branch(galle).quantity(10).build());
+            if (matara != null) p8.addBranchInventory(BranchInventory.builder().branch(matara).quantity(8).build());
+            if (kandy != null) p8.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(12).build());
+
+            // 9. Intel Core i9-14900KS
+            Product p9 = Product.builder()
+                    .name("Intel Core i9-14900KS Special Edition Processor")
+                    .category(categoryRepository.findBySlug("components").orElse(null))
+                    .brand(brandRepository.findBySlug("intel").orElse(null))
+                    .badge(badgeRepository.findBySlug("new").orElse(null))
+                    .price(new BigDecimal("215000.00"))
+                    .originalPrice(new BigDecimal("230000.00"))
+                    .rating(new BigDecimal("4.9"))
+                    .reviewsCount(29)
+                    .description("The world's fastest desktop processor reaching unprecedented 6.2 GHz out-of-the-box clock speed.")
+                    .fullDescription("Featuring 24 cores (8 Performance, 16 Efficient), 32 threads, and Intel Thermal Velocity Boost. Designed for extreme enthusiasts and world-record overclocking.")
+                    .sku("ETC-CPU-001")
+                    .warranty("3-Year Boxed Processor Warranty")
+                    .alertEnabled(true)
+                    .lowStockMargin(4)
+                    .build();
+
+            p9.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p9.addSpec(Specs.builder().name("Cores / Threads").description("24 Cores (8P + 16E) / 32 Threads").build());
+            p9.addSpec(Specs.builder().name("Max Turbo Clock").description("Up to 6.2 GHz with Thermal Velocity Boost").build());
+            p9.addSpec(Specs.builder().name("Intel Smart Cache").description("36MB L3 Cache + 32MB L2 Cache").build());
+            p9.addSpec(Specs.builder().name("Socket").description("LGA1700 (Intel 600 & 700 Series Chipsets)").build());
+            p9.addSpec(Specs.builder().name("Base Power").description("150W Processor Base Power (253W Max Turbo)").build());
+
+            p9.addFeature(Features.builder().featureName("Intel Application Optimization (APO) Supported").build());
+
+            if (colombo != null) p9.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(8).build());
+            if (galle != null) p9.addBranchInventory(BranchInventory.builder().branch(galle).quantity(3).build());
+            if (kandy != null) p9.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(4).build());
+
+            // 10. Lian Li O11 Dynamic EVO RGB Chassis
+            Product p10 = Product.builder()
+                    .name("Lian Li O11 Dynamic EVO RGB Dual-Chamber Chassis")
+                    .category(categoryRepository.findBySlug("components").orElse(null))
+                    .brand(brandRepository.findBySlug("lianli").orElse(null))
+                    .badge(badgeRepository.findBySlug("bestseller").orElse(null))
+                    .price(new BigDecimal("62000.00"))
+                    .originalPrice(new BigDecimal("68000.00"))
+                    .rating(new BigDecimal("4.8"))
+                    .reviewsCount(44)
+                    .description("Dual-chamber panoramic chassis with seamless L-shaped diffused ARGB lighting strips.")
+                    .fullDescription("Offers dual-directional versatility (can be inverted to right-hand view), support for up to 3 x 420mm radiators, and pillar-less panoramic tempered glass design.")
+                    .sku("ETC-CAS-001")
+                    .warranty("1-Year Replacement Warranty")
+                    .alertEnabled(true)
+                    .lowStockMargin(5)
+                    .build();
+
+            p10.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p10.addSpec(Specs.builder().name("Chassis Type").description("Dual-Chamber Mid-Tower Showcase").build());
+            p10.addSpec(Specs.builder().name("Motherboard Support").description("E-ATX (under 280mm) / ATX / Micro-ATX / Mini-ITX").build());
+            p10.addSpec(Specs.builder().name("Radiator Support").description("Up to 3x 420mm or 3x 360mm Radiators").build());
+            p10.addSpec(Specs.builder().name("GPU Clearance").description("Up to 455.7mm Length, 169mm Height").build());
+
+            p10.addFeature(Features.builder().featureName("Dual Diffused L-Shaped ARGB Lighting Strips").build());
+
+            if (colombo != null) p10.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(10).build());
+            if (galle != null) p10.addBranchInventory(BranchInventory.builder().branch(galle).quantity(4).build());
+            if (matara != null) p10.addBranchInventory(BranchInventory.builder().branch(matara).quantity(3).build());
+            if (kandy != null) p10.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(5).build());
+
+            // 11. ASUS ROG Rapture GT-BE98 Wi-Fi 7 Router
+            Product p11 = Product.builder()
+                    .name("ASUS ROG Rapture GT-BE98 Quad-Band Wi-Fi 7 Gaming Router")
+                    .category(categoryRepository.findBySlug("networking").orElse(null))
+                    .brand(brandRepository.findBySlug("asus").orElse(null))
+                    .badge(badgeRepository.findBySlug("new").orElse(null))
+                    .price(new BigDecimal("185000.00"))
+                    .originalPrice(new BigDecimal("199000.00"))
+                    .rating(new BigDecimal("4.9"))
+                    .reviewsCount(15)
+                    .description("World's first quad-band Wi-Fi 7 gaming router delivering speeds up to 25 Gbps with dual 10G ports.")
+                    .fullDescription("Featuring 320 MHz channels, 4096-QAM, Multi-Link Operation (MLO), triple-level game acceleration, and robust commercial-grade AiProtection network security.")
+                    .sku("ETC-ROU-001")
+                    .warranty("3-Year Official Warranty")
+                    .alertEnabled(true)
+                    .lowStockMargin(3)
+                    .build();
+
+            p11.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p11.addSpec(Specs.builder().name("Network Standard").description("IEEE 802.11be Wi-Fi 7 (BE25000 Quad-Band)").build());
+            p11.addSpec(Specs.builder().name("Data Rate").description("Up to 25 Gbps aggregate throughput").build());
+            p11.addSpec(Specs.builder().name("Wired Ports").description("2x 10G Ports + 4x 2.5G Ports + 1x 1G Port").build());
+            p11.addSpec(Specs.builder().name("Processor").description("2.6 GHz 64-bit Quad-Core CPU with 2GB DDR4 RAM").build());
+
+            p11.addFeature(Features.builder().featureName("Multi-Link Operation (MLO) for zero packet loss").build());
+
+            if (colombo != null) p11.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(6).build());
+            if (kandy != null) p11.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(3).build());
+
+            // 12. HyperX Cloud III Wireless Headset
+            Product p12 = Product.builder()
+                    .name("HyperX Cloud III Wireless Gaming Headset")
+                    .category(categoryRepository.findBySlug("peripherals").orElse(null))
+                    .brand(brandRepository.findBySlug("hyperx").orElse(null))
+                    .badge(badgeRepository.findBySlug("bestseller").orElse(null))
+                    .price(new BigDecimal("48000.00"))
+                    .originalPrice(new BigDecimal("52000.00"))
+                    .rating(new BigDecimal("4.8"))
+                    .reviewsCount(51)
+                    .description("Legendary comfort with 120-hour battery life, 53mm angled drivers, and DTS Headphone:X Spatial Audio.")
+                    .fullDescription("The evolution of the legendary Cloud II. Re-engineered angled 53mm drivers tuned for optimal gaming audio, ultra-clear 10mm noise-canceling mic with internal mesh pop filter.")
+                    .sku("ETC-HED-001")
+                    .warranty("2-Year Official Warranty")
+                    .alertEnabled(true)
+                    .lowStockMargin(7)
+                    .build();
+
+            p12.addImage(ProductImage.builder().imageUrl("https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80").displayOrder(0).build());
+
+            p12.addSpec(Specs.builder().name("Driver").description("Custom Dynamic 53mm with Neodymium Magnets").build());
+            p12.addSpec(Specs.builder().name("Battery Life").description("Up to 120 Hours on Single Charge").build());
+            p12.addSpec(Specs.builder().name("Wireless Type").description("2.4 GHz Ultra-Low Latency Wireless").build());
+            p12.addSpec(Specs.builder().name("Spatial Audio").description("DTS Headphone:X Lifetime Spatial Audio").build());
+
+            p12.addFeature(Features.builder().featureName("Signature HyperX Memory Foam Headband & Ear Cushions").build());
+
+            if (colombo != null) p12.addBranchInventory(BranchInventory.builder().branch(colombo).quantity(15).build());
+            if (galle != null) p12.addBranchInventory(BranchInventory.builder().branch(galle).quantity(8).build());
+            if (matara != null) p12.addBranchInventory(BranchInventory.builder().branch(matara).quantity(5).build());
+            if (kandy != null) p12.addBranchInventory(BranchInventory.builder().branch(kandy).quantity(8).build());
+
+            productRepository.saveAll(List.of(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12));
+            log.info("Successfully seeded 12 sample products with accurate hardware specs and inventories!");
         }
     }
 
@@ -687,76 +1016,68 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedPolicies() {
         if (legalPolicyRepository.count() == 0) {
-            log.info("Seeding legal policies...");
+            log.info("Seeding legal policies with standard frontend IDs...");
             LegalPolicy lp1 = LegalPolicy.builder()
-                    .id("terms-of-service")
+                    .id("terms")
                     .title("Terms of Service")
                     .subtitle("Store terms, purchase agreements, order conditions, and customer service level agreements.")
                     .lastUpdated("January 2026")
                     .build();
             lp1.addPolicySection(PolicySections.builder()
-                    .id("terms-of-service-1")
+                    .id("terms-1")
                     .sectionTitle("Order Fulfillment & Pricing")
                     .sectionContent("All hardware prices are listed in Sri Lankan Rupees (LKR) with applicable VAT included. Orders are subject to stock validation and branch warehouse confirmation.")
                     .legalPolicy(lp1)
                     .build());
             lp1.addPolicySection(PolicySections.builder()
-                    .id("terms-of-service-2")
+                    .id("terms-2")
                     .sectionTitle("Shipping & Delivery")
                     .sectionContent("We offer nationwide delivery with tracking. Estimated delivery times vary based on location and product availability.")
                     .legalPolicy(lp1)
                     .build());
 
             LegalPolicy lp2 = LegalPolicy.builder()
-                    .id("warranty-guarantee")
+                    .id("warranty")
                     .title("Guarantee & Warranty Terms")
                     .subtitle("Official distributor manufacturer warranty policies, RMA claims process, replacement procedures, and SLA details.")
                     .lastUpdated("January 2026")
                     .build();
             lp2.addPolicySection(PolicySections.builder()
-                    .id("warranty-guarantee-1")
+                    .id("warranty-1")
                     .sectionTitle("Manufacturer Warranty Coverage")
                     .sectionContent("All laptops, GPUs, motherboards, and monitors are backed by authentic manufacturer warranties ranging from 2 to 3 years.")
                     .legalPolicy(lp2)
                     .build());
             lp2.addPolicySection(PolicySections.builder()
-                    .id("warranty-guarantee-2")
+                    .id("warranty-2")
                     .sectionTitle("RMA Return Protocols")
                     .sectionContent("Hardware claims can be submitted at any of our regional branch hubs across Colombo, Galle, Matara, or Kandy for priority diagnosis.")
                     .legalPolicy(lp2)
                     .build());
 
             LegalPolicy lp3 = LegalPolicy.builder()
-                    .id("privacy-policy")
+                    .id("privacy")
                     .title("Privacy Policy & Data Security")
                     .subtitle("User data security, cookie consent, tracking regulations, and GDPR/local privacy policy compliance.")
                     .lastUpdated("January 2026")
                     .build();
 
             lp3.addPolicySection(PolicySections.builder()
-                    .id("privacy-policy-1")
+                    .id("privacy-1")
                     .sectionTitle("Information Collection")
                     .sectionContent("We securely collect user account details, shipping addresses, and transaction audit logs strictly to provide exceptional e-commerce experiences.")
                     .legalPolicy(lp3)
                     .build());
 
-            lp3.getPolicySections().add(PolicySections.builder()
-                    .id("privacy-policy-2")
+            lp3.addPolicySection(PolicySections.builder()
+                    .id("privacy-2")
                     .sectionTitle("Data Protection Standards")
                     .sectionContent("Customer records and authentication credentials are encrypted using industry-standard BCrypt and TLS 1.3 algorithms.")
                     .legalPolicy(lp3)
                     .build());
 
-
-            List<LegalPolicy> policies = List.of(
-                    lp1,
-                    lp2,
-                    lp3
-            );
-
-
-            legalPolicyRepository.saveAll(policies);
-            log.info("Successfully seeded {} legal policies!", policies.size());
+            legalPolicyRepository.saveAll(List.of(lp1, lp2, lp3));
+            log.info("Successfully seeded 3 legal policies with matching frontend IDs!");
         }
     }
 
@@ -836,19 +1157,246 @@ public class DataInitializer implements CommandLineRunner {
         if (newsletterSubscriberRepository.count() == 0) {
             log.info("Seeding newsletter subscribers...");
             List<NewsletterSubscriber> subscribers = List.of(
-                    NewsletterSubscriber.builder()
-                            .email("john.gamer@gmail.com")
-                            .name("John Gamer")
-                            .status(SubscriberStatus.SUBSCRIBED)
-                            .build(),
-                    NewsletterSubscriber.builder()
-                            .email("saman.tech@sltnet.lk")
-                            .name("Saman Perera")
-                            .status(SubscriberStatus.SUBSCRIBED)
-                            .build()
+                    NewsletterSubscriber.builder().email("kasun.p@gmail.com").name("Kasun Perera").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("john.gamer@gmail.com").name("John Gamer").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("saman.tech@sltnet.lk").name("Saman Perera").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("dinesh.developer@gmail.com").name("Dinesh Developer").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("sarath.electronics@yahoo.com").name("Sarath Gunawardena").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("chaminda.v@gmail.com").name("Chaminda V").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("gaming.beast99@gmail.com").name("Gaming Beast").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("anushka.sen@hotmail.com").name("Anushka Sen").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("priyantha.k@gmail.com").name("Priyantha K").status(SubscriberStatus.SUBSCRIBED).build(),
+                    NewsletterSubscriber.builder().email("techie.ravindu@outlook.com").name("Ravindu Jay").status(SubscriberStatus.SUBSCRIBED).build()
             );
             newsletterSubscriberRepository.saveAll(subscribers);
             log.info("Successfully seeded {} newsletter subscribers!", subscribers.size());
+        }
+    }
+
+    private void seedNewsletterCampaigns() {
+        if (newsletterCampaignRepository.count() == 0) {
+            log.info("Seeding newsletter broadcast campaigns...");
+            List<NewsletterCampaign> campaigns = List.of(
+                    NewsletterCampaign.builder()
+                            .id("camp_20260825_01")
+                            .subject("Weekend Flash Deals - Save up to 25% on ROG & MSI Hardware")
+                            .preheader("Exclusive limited-time price drops on flagship GPUs and OLED monitors.")
+                            .category("FLASH_DEALS")
+                            .targetSegment("ALL_ACTIVE")
+                            .contentHtml("<h1>Weekend Flash Deals</h1><p>Enjoy incredible discounts across all flagship hardware this weekend at ETech!</p>")
+                            .recipientsCount(10)
+                            .status("DELIVERED")
+                            .authorName("Store Admin")
+                            .build(),
+                    NewsletterCampaign.builder()
+                            .id("camp_20260902_02")
+                            .subject("Next-Gen Intel Core Ultra & NVIDIA RTX Super Arrivals")
+                            .preheader("Explore cutting-edge enthusiast rigs and official partner hardware.")
+                            .category("NEW_ARRIVALS")
+                            .targetSegment("ALL_ACTIVE")
+                            .contentHtml("<h1>New Arrivals at ETech</h1><p>The newest generation of AI PCs and enthusiast hardware has officially landed.</p>")
+                            .recipientsCount(10)
+                            .status("DELIVERED")
+                            .authorName("Store Admin")
+                            .build()
+            );
+            newsletterCampaignRepository.saveAll(campaigns);
+            log.info("Successfully seeded {} newsletter campaigns!", campaigns.size());
+        }
+    }
+
+    private void seedOrders() {
+        if (orderRepository.count() == 0) {
+            log.info("Seeding initial orders with order items...");
+
+            User kasun = userRepository.findByUsername("kasun").orElse(null);
+            Branch colombo = branchRepository.findById("BR-COL").orElse(null);
+            Branch kandy = branchRepository.findById("BR-KAN").orElse(null);
+            Branch galle = branchRepository.findById("BR-GAL").orElse(null);
+
+            Product lap1 = productRepository.findBySku("ETC-LAP-001").orElse(null);
+            Product mouse = productRepository.findBySku("ETC-MOU-001").orElse(null);
+            Product gpu = productRepository.findBySku("ETC-GPU-001").orElse(null);
+            Product ram = productRepository.findBySku("ETC-RAM-001").orElse(null);
+            Product monitor = productRepository.findBySku("ETC-MON-001").orElse(null);
+
+            if (colombo != null && lap1 != null && mouse != null) {
+                // Order 1: Delivered
+                Order o1 = Order.builder()
+                        .orderCode("ORD-20260901-001")
+                        .user(kasun)
+                        .customerName(kasun != null ? kasun.getName() : "Kasun Perera")
+                        .customerEmail(kasun != null ? kasun.getEmail() : "kasun.p@gmail.com")
+                        .customerPhone("+94 77 123 4567")
+                        .shippingAddress("125/4 Galle Road")
+                        .city("Colombo")
+                        .fulfillmentBranch(colombo)
+                        .distanceKm(new BigDecimal("4.50"))
+                        .subtotal(new BigDecimal("899499.00"))
+                        .shippingFee(BigDecimal.ZERO)
+                        .tax(BigDecimal.ZERO)
+                        .totalAmount(new BigDecimal("899499.00"))
+                        .status(OrderStatus.Delivered)
+                        .paymentMethod("Credit / Debit Card")
+                        .build();
+
+                o1.addItem(OrderItem.builder()
+                        .product(lap1)
+                        .productName(lap1.getName())
+                        .productSku(lap1.getSku())
+                        .unitPrice(lap1.getPrice())
+                        .quantity(1)
+                        .totalPrice(lap1.getPrice())
+                        .build());
+
+                o1.addItem(OrderItem.builder()
+                        .product(mouse)
+                        .productName(mouse.getName())
+                        .productSku(mouse.getSku())
+                        .unitPrice(mouse.getPrice())
+                        .quantity(1)
+                        .totalPrice(mouse.getPrice())
+                        .build());
+
+                orderRepository.save(o1);
+            }
+
+            if (kandy != null && gpu != null && ram != null) {
+                // Order 2: Processing
+                Order o2 = Order.builder()
+                        .orderCode("ORD-20260905-002")
+                        .user(kasun)
+                        .customerName(kasun != null ? kasun.getName() : "Kasun Perera")
+                        .customerEmail(kasun != null ? kasun.getEmail() : "kasun.p@gmail.com")
+                        .customerPhone("+94 77 123 4567")
+                        .shippingAddress("42 Peradeniya Road")
+                        .city("Kandy")
+                        .fulfillmentBranch(kandy)
+                        .distanceKm(new BigDecimal("8.20"))
+                        .subtotal(new BigDecimal("440000.00"))
+                        .shippingFee(new BigDecimal("1500.00"))
+                        .tax(BigDecimal.ZERO)
+                        .totalAmount(new BigDecimal("441500.00"))
+                        .status(OrderStatus.Processing)
+                        .paymentMethod("Bank Wire Transfer")
+                        .build();
+
+                o2.addItem(OrderItem.builder()
+                        .product(gpu)
+                        .productName(gpu.getName())
+                        .productSku(gpu.getSku())
+                        .unitPrice(gpu.getPrice())
+                        .quantity(1)
+                        .totalPrice(gpu.getPrice())
+                        .build());
+
+                o2.addItem(OrderItem.builder()
+                        .product(ram)
+                        .productName(ram.getName())
+                        .productSku(ram.getSku())
+                        .unitPrice(ram.getPrice())
+                        .quantity(1)
+                        .totalPrice(ram.getPrice())
+                        .build());
+
+                orderRepository.save(o2);
+            }
+
+            if (galle != null && monitor != null) {
+                // Order 3: Pending (Guest order)
+                Order o3 = Order.builder()
+                        .orderCode("ORD-20260910-003")
+                        .user(null)
+                        .customerName("Nimal Silva")
+                        .customerEmail("nimal.silva@outlook.com")
+                        .customerPhone("+94 71 987 6543")
+                        .shippingAddress("18 Matara Road")
+                        .city("Galle")
+                        .fulfillmentBranch(galle)
+                        .distanceKm(new BigDecimal("12.00"))
+                        .subtotal(new BigDecimal("420000.00"))
+                        .shippingFee(new BigDecimal("2500.00"))
+                        .tax(BigDecimal.ZERO)
+                        .totalAmount(new BigDecimal("422500.00"))
+                        .status(OrderStatus.Pending)
+                        .paymentMethod("Cash on Delivery (COD)")
+                        .build();
+
+                o3.addItem(OrderItem.builder()
+                        .product(monitor)
+                        .productName(monitor.getName())
+                        .productSku(monitor.getSku())
+                        .unitPrice(monitor.getPrice())
+                        .quantity(1)
+                        .totalPrice(monitor.getPrice())
+                        .build());
+
+                orderRepository.save(o3);
+            }
+
+            log.info("Successfully seeded 3 sample orders with order items!");
+        }
+    }
+
+    private void seedStockTransfers() {
+        if (stockTransferRepository.count() == 0) {
+            log.info("Seeding inter-branch stock transfers...");
+
+            Branch colombo = branchRepository.findById("BR-COL").orElse(null);
+            Branch kandy = branchRepository.findById("BR-KAN").orElse(null);
+            Branch galle = branchRepository.findById("BR-GAL").orElse(null);
+            Branch matara = branchRepository.findById("BR-MAT").orElse(null);
+
+            Product lap1 = productRepository.findBySku("ETC-LAP-001").orElse(null);
+            Product gpu = productRepository.findBySku("ETC-GPU-001").orElse(null);
+            Product mouse = productRepository.findBySku("ETC-MOU-001").orElse(null);
+
+            if (colombo != null && kandy != null && lap1 != null) {
+                StockTransfer t1 = StockTransfer.builder()
+                        .id("TRF-2026-001")
+                        .product(lap1)
+                        .fromBranch(colombo)
+                        .toBranch(kandy)
+                        .quantity(2)
+                        .status(StockTransferStatus.RECEIVED)
+                        .reason("High customer demand in Kandy region")
+                        .initiatedBy("staff_colombo")
+                        .notes("Transferred via secure express logistics. Accepted by Kandy branch manager.")
+                        .build();
+                stockTransferRepository.save(t1);
+            }
+
+            if (colombo != null && galle != null && gpu != null) {
+                StockTransfer t2 = StockTransfer.builder()
+                        .id("TRF-2026-002")
+                        .product(gpu)
+                        .fromBranch(colombo)
+                        .toBranch(galle)
+                        .quantity(3)
+                        .status(StockTransferStatus.IN_TRANSIT)
+                        .reason("Store stock replenishment")
+                        .initiatedBy("staff_colombo")
+                        .notes("In transit via ETech regional transit van.")
+                        .build();
+                stockTransferRepository.save(t2);
+            }
+
+            if (kandy != null && matara != null && mouse != null) {
+                StockTransfer t3 = StockTransfer.builder()
+                        .id("TRF-2026-003")
+                        .product(mouse)
+                        .fromBranch(kandy)
+                        .toBranch(matara)
+                        .quantity(5)
+                        .status(StockTransferStatus.PENDING)
+                        .reason("Southern showroom stock balance")
+                        .initiatedBy("staff_colombo")
+                        .notes("Awaiting dispatch scheduling.")
+                        .build();
+                stockTransferRepository.save(t3);
+            }
+
+            log.info("Successfully seeded 3 inter-branch stock transfers!");
         }
     }
 

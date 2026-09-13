@@ -45,16 +45,17 @@ public class ProductController {
                         @RequestParam(required = false) BigDecimal minPrice,
                         @RequestParam(required = false) BigDecimal maxPrice,
                         @RequestParam(required = false) String badge,
+                        @RequestParam(required = false) String status,
                         @RequestParam(defaultValue = "0") int page,
                         @RequestParam(defaultValue = "20") int size,
                         @RequestParam(defaultValue = "id") String sortBy,
                         @RequestParam(defaultValue = "asc") String sortDir) {
 
-                log.info("REST: Querying products - category: {}, brand: {}, search: {}, page: {}, size: {}",
-                                category, brand, search, page, size);
+                log.info("REST: Querying products - category: {}, brand: {}, search: {}, status: {}, page: {}, size: {}",
+                                category, brand, search, status, page, size);
 
-                List<ProductResponseDTO> response = productService.getFilteredProducts(
-                                category, brand, search, minPrice, maxPrice, badge, page, size, sortBy, sortDir);
+                PageResponseDTO<ProductResponseDTO> response = productService.getFilteredProducts(
+                                category, brand, search, minPrice, maxPrice, badge, status, page, size, sortBy, sortDir);
 
                 return ResponseEntity.ok(CommonResponse.builder()
                                 .status(HttpStatus.OK.value())
