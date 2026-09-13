@@ -59,6 +59,12 @@ public class Order {
     @Builder.Default
     private BigDecimal distanceKm = BigDecimal.ZERO;
 
+    @Column(name = "delivery_latitude", precision = 10, scale = 8)
+    private BigDecimal deliveryLatitude;
+
+    @Column(name = "delivery_longitude", precision = 11, scale = 8)
+    private BigDecimal deliveryLongitude;
+
     @Column(name = "subtotal", precision = 12, scale = 2, nullable = false)
     private BigDecimal subtotal;
 
